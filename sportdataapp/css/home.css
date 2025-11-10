@@ -1,9 +1,6 @@
 body{
     background-color: #f5f7fb;
 }
-.meny{
-    display: none;
-}
 
 .home {
     display: flex;

@@ -75,7 +75,6 @@ mysqli_close($link);
         <link rel="stylesheet" href="../css/home.css">
     </head>
     <body>
-
         <div class="meny">
             <ul>
                 <li>home</li>
@@ -86,7 +85,6 @@ mysqli_close($link);
                 <li>diary</li>
             </ul>
         </div>
-
         <div class="home">
             <div class="home-left">
                 <div class="user">
