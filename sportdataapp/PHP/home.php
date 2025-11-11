@@ -77,9 +77,7 @@ mysqli_close($link);
     <body>
         <div class="home">
             <div class="meny">
-                <button class="meny-btn">
-                    <img src="../img/images.png" width="70px" height="70px">
-                </button>
+                <button class="meny-btn"></button>
                 <nav class="meny-nav">
                         <ul>
                             <li><a href="home.php">ホーム</a></li>
