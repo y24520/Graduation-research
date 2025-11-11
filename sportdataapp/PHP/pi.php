@@ -17,11 +17,18 @@ $host = '127.0.0.1';
 </head>
 <body>
     <div class="container">
-
+        <div class="meny">
+            <button class="meny-btn"></button>
+            <nav class="meny-nav">
+                <ul>
+                    <li><a href="home.php">ホーム</a></li>
+                    <li><a href="pi.php">身体情報</a></li>
+                </ul>
+            </nav>
+        </div> 
         <div class="input-panel">
             <form action="" method="post">
                 <h3>データ入力</h3>
-
                 <label for="height">身長</label>
                 <input type="number" id="height" name="height" placeholder="cm" min="50" max="250" step="0.1"><br>
 
@@ -37,26 +44,24 @@ $host = '127.0.0.1';
                 <input type="submit" value="送信">
             </form>
         </div>
-
-        <div class="graph-panel">
-            <div class="graph-panel_1">
-                <h2>身長・体重・BMI</h2>
-                <div class="graph height-weight-bmi"></div>
-            </div>
-
-            <div class="graph-panel_2">
+            <div class="graph-panel">
+                <div class="graph-panel_1">
+                    <h2>身長・体重・BMI</h2>
+                    <canvas class="graph height-weight-bmi"></canvas>
+                </div>
+                <div class="graph-panel_2">
                 <div class="panel-item">
                     <h2>睡眠時間</h2>
-                    <div class="graph sleep"></div>
+                    <canvas class="graph sleep"></canvas>
                 </div>
-
                 <div class="panel-item">
                     <h2>怪我履歴</h2>
-                    <div class="graph injury"></div>
+                    <canvas class="graph injury"></canvas>
                 </div>
             </div>
         </div>
-
     </div>
+    <script src=../js/meny.js></script>
+    <script src=../js/chart_pi.js></script>
 </body>
 </html>

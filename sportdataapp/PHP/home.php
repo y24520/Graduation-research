@@ -127,7 +127,7 @@ mysqli_close($link);
                     <div class="goal-border">
                         <div class="goal-form">
                             <form action="" method="post">
-                                <h3>今月の目</h3>
+                                <h3>今月の目標</h3>
                                 <input type="text" id="goal" name="goal" value=""><br>
                                 <input type="submit" id="goal-reg" name="submit" value="登録">
                             </form>
@@ -147,6 +147,6 @@ mysqli_close($link);
             </div>
         </div>
     <script src="../js/calendar.js"></script>
-    <script src="../js/home_meny.js"></script>
+    <script src="../js/meny.js"></script>
     </body>
 </html>

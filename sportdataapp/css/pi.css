@@ -4,13 +4,45 @@ body {
     background-color: #f9f9f9;
 }
 
-/* 全体のレイアウト */
+
 .container {
     display: flex;
     height: 100vh;
 }
 
-/* 入力欄（左側） */
+.meny{
+    width: 200px;
+    padding: 20px;
+}
+
+.meny-nav{
+    display: none;
+}
+
+.meny-nav.show{
+    display: block;
+}
+
+
+.meny-btn{
+    border: none;
+    width: 70px;
+    height: 70px;
+    background-image: url(../img/images.png);
+    background-size: cover;
+    background-position: center;
+    border-radius: 40px;
+    box-shadow: 3px 3px 2px rgba(0,0,0,0.5);
+}
+
+.meny-btn:hover{
+    filter:brightness(0.8);
+}
+
+.meny-btn:active{
+    box-shadow: inset 3px 3px 2px rgba(0,0,0,0.2);
+}
+
 .input-panel {
     width: 25%;
     background-color: #e0e0e0;
@@ -35,10 +67,10 @@ body {
     margin-top: 5px;
 }
 
-/* グラフエリア（右側） */
 .graph-panel {
     flex-grow: 1;
-    padding: 20px;
+    padding: 10px;
+    padding-left:  20px;
     box-sizing: border-box;
 }
 
@@ -48,10 +80,14 @@ body {
 }
 
 .graph {
-    height: 350px;
     background-color: #fff;
     border: 1px solid #ccc;
     margin-bottom: 20px;
+}
+
+.graph-panel_1 canvas{
+    width: 1145px;
+
 }
 
 .graph-panel_2 {
@@ -62,7 +98,7 @@ body {
 
 .panel-item {
     flex: 1;            
-    padding: 10px;
+    padding: 5px;
     box-sizing: border-box;
 }
 
