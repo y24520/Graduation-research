@@ -79,10 +79,10 @@ mysqli_close($link);
             <div class="meny">
                 <button class="meny-btn"></button>
                 <nav class="meny-nav">
-                        <ul>
-                            <li><a href="home.php">ホーム</a></li>
-                            <li><a href="pi.php">身体情報</a></li>
-                        </ul>
+                    <ul>
+                        <li><a href="home.php">ホーム</a></li>
+                        <li><a href="pi.php">身体情報</a></li>
+                    </ul>
                 </nav>
            </div> 
             <div class="home-left">

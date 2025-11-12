@@ -4,6 +4,28 @@ session_start();
 $usr = 'y24514';
 $pwd = 'Kr96main0303';
 $host = '127.0.0.1';
+$dbName = 'sportdata_db';
+
+$link = mysqli_connect($host, $usr, $pwd, $dbName);
+if(!$link){
+    die('接続失敗:' . mysqli_connect_error());
+}
+mysqli_set_charset($link, 'utf8');
+
+$user_id = $_SESSION['user_id'];
+$group_id = $_SESSION['group_id'];
+
+if($_SERVER['REQUEST_METHOD'] === 'POST'){
+    $height = $_POST['height'];
+    $weight = $_POST['weight'];
+    $injury = $_POST['injury'];
+    $sleep_time = $_POST['sleep_time'];
+    $created_at = "NOW()";
+
+    $stmt = mysqli_prepare($link, "INSERT INTO pi_tbl(group_id, user_id, height, weight, injury, sleep_time, created_at ) VALUES(?, ?, ?, ?, ?, ?, ?) ");
+    mysqli_stmt_bind_param($stmt, "ssddsss", $group_id, $user_id, $height, $weight, $injury, $sleep_time, $created_at);
+
+}
 
 
 ?>
