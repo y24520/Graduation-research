@@ -20,14 +20,22 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $weight = $_POST['weight'];
     $injury = $_POST['injury'];
     $sleep_time = $_POST['sleep_time'];
-    $created_at = "NOW()";
+    $create_at = "";
 
-    $stmt = mysqli_prepare($link, "INSERT INTO pi_tbl(group_id, user_id, height, weight, injury, sleep_time, created_at ) VALUES(?, ?, ?, ?, ?, ?, ?) ");
-    mysqli_stmt_bind_param($stmt, "ssddsss", $group_id, $user_id, $height, $weight, $injury, $sleep_time, $created_at);
+    $stmt = mysqli_prepare($link, "INSERT INTO pi_tbl(group_id, user_id, height, weight, injury, sleeptime, create_at ) VALUES(?, ?, ?, ?, ?, ?, NOw()) ");
+    mysqli_stmt_bind_param($stmt, "ssddss", $group_id, $user_id, $height, $weight, $injury, $sleep_time);
+    $success = mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+
+    if($success){
+        echo "身体データを登録しました。";
+    } else{
+        echo "エラー" . mysqli_error($link);
+    }
 
 }
 
-
+$stmt2 = mysqli_prepare($link, "SELECT group_id, user_id,")
 ?>
 
 <!DOCTYPE html>
@@ -43,13 +51,13 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             <button class="meny-btn"></button>
             <nav class="meny-nav">
                 <ul>
-                    <li><a href="home.php">ホーム</a></li>
-                    <li><a href="pi.php">身体情報</a></li>
+                    <li><button><a href="home.php">ホーム</a></button></li>
+                    <li><button><a href="pi.php">身体情報</a></button></li>
                 </ul>
             </nav>
         </div> 
         <div class="input-panel">
-            <form action="" method="post">
+            <form id=piform action="" method="post">
                 <h3>データ入力</h3>
                 <label for="height">身長</label>
                 <input type="number" id="height" name="height" placeholder="cm" min="50" max="250" step="0.1"><br>
@@ -84,6 +92,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
         </div>
     </div>
     <script src=../js/meny.js></script>
+    <script src=../js/pi.js></script>
     <script src=../js/chart_pi.js></script>
 </body>
 </html>
