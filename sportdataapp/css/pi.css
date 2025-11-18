@@ -99,7 +99,6 @@ body {
 
 .graph-panel_1 canvas{
     width: 1145px;
-
 }
 
 .graph-panel_2 {
@@ -123,5 +122,9 @@ body {
     height: 250px;
     background-color: #fff;
     border: 1px solid #ccc;
+}
+
+.graph.injury{
+    width: 498px;
 }
 

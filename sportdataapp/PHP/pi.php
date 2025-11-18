@@ -100,22 +100,26 @@ mysqli_stmt_close($stmt2);
                     <canvas class="graph height-weight-bmi"></canvas>
                 </div>
                 <div class="graph-panel_2">
-                <div class="panel-item">
-                    <h2>睡眠時間</h2>
-                    <canvas class="graph sleep"></canvas>
-                </div>
-                <div class="panel-item">
-                    <h2>怪我履歴</h2>
-                    <canvas class="graph injury"></canvas>
+                    <div class="panel-item">
+                        <h2>睡眠時間</h2>
+                        <canvas class="graph sleep"></canvas>
+                    </div>
+                    <div class="panel-item">
+                        <h2>怪我履歴</h2>
+                        <div class="graph injury">
+                            <?php foreach($records as $r): ?>
+                               <p><?= htmlspecialchars($r['create_at']) ?> : <?= htmlspecialchars($r['injury']) ?><p>                        
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
     <script>
         const records = <?= json_encode($records, JSON_UNESCAPED_UNICODE); ?>;
     </script>
     <script src=../js/meny.js></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type=module src=../js/pi.js></script>
 </body>
 </html>
