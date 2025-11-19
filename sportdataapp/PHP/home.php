@@ -61,6 +61,7 @@ if($success){
 }else{
     echo "エラー" . mysqli_error($link);
 }
+
 mysqli_close($link);
 }
 ?>
@@ -144,6 +145,10 @@ mysqli_close($link);
                 </div>
             </div>
         </div>
+
+    <script src="../js/fullcalendar/dist/index.global.min.js"></script>
+    <script src="../js/fullcalendar/packages/interaction/index.global.min.js"></script>
+    <script src="../js/fullcalendar/packages/daygrid/index.global.min.js"></script>
     <script src="../js/calendar.js"></script>
     <script src="../js/meny.js"></script>
     </body>
