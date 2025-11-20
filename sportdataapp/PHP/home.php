@@ -27,6 +27,8 @@ $user_id = $_SESSION['user_id'];
 $group_id = $_SESSION['group_id'];
 $corrent_goal = "";
 
+
+//goal表示
 $stmt = mysqli_prepare($link, "SELECT goal FROM goal_tbl WHERE group_id = ? AND user_id = ?");
 mysqli_stmt_bind_param($stmt, "ss", $group_id, $user_id);
 mysqli_stmt_execute($stmt);
@@ -36,34 +38,23 @@ if($row = mysqli_fetch_assoc($result)){
 }
 mysqli_stmt_close($stmt);
 
-if($_SERVER['REQUEST_METHOD'] === 'POST'){
-$goal = $_POST['goal'];
-
-$stmt2 = mysqli_prepare($link, "SELECT * FROM goal_tbl WHERE user_id = ? AND group_id = ?");
-mysqli_stmt_bind_param($stmt2, "ss", $user_id , $group_id);
+//スケジュール表示
+$stmt2 = mysqli_prepare($link, "SELECT title, startdate, enddate FROM calendar_tbl WHERE group_id = ? AND user_id = ?");
+mysqli_stmt_bind_param($stmt2, "ss", $group_id, $user_id);
 mysqli_stmt_execute($stmt2);
-$result2 = mysqli_stmt_get_result($stmt2);
+mysqli_stmt_bind_result($stmt2, $title, $startdate, $enddate);
 
-if(mysqli_num_rows($result2) > 0){
-    $stmt2 = mysqli_prepare($link, "UPDATE goal_tbl SET goal = ? ,created_at = NOW() WHERE user_id = ? AND group_id = ?");
-    mysqli_stmt_bind_param($stmt2, "sss", $goal, $user_id, $group_id);
-    $success = mysqli_stmt_execute($stmt2);
-    mysqli_stmt_close($stmt2);
-}else{
-    $stmt3 = mysqli_prepare($link,"INSERT INTO goal_tbl(group_id,user_id,goal,created_at)VALUES(?, ?, ?,NOW())");
-    mysqli_stmt_bind_param($stmt3, "sss", $group_id, $user_id, $goal);
-    $success = mysqli_stmt_execute($stmt3);
-    mysqli_stmt_close($stmt3);
-}
+$records = [];
 
-if($success){
-    echo "目標を登録しました。";
-}else{
-    echo "エラー" . mysqli_error($link);
+while(mysqli_stmt_fetch($stmt2)){
+    $records [] = [
+        'title' => $title,
+        'startdate' => $startdate,
+        'enddate' => $enddate
+    ];
 }
+mysqli_stmt_close($stmt2);
 
-mysqli_close($link);
-}
 ?>
 
 <!DOCTYPE>
@@ -125,7 +116,7 @@ mysqli_close($link);
                     <h2>目標</h2>
                     <div class="goal-border">
                         <div class="goal-form">
-                            <form action="" method="post">
+                            <form action="goalsave.php" method="post">
                                 <h3>今月の目標</h3>
                                 <input type="text" id="goal" name="goal" value=""><br>
                                 <input type="submit" id="goal-reg" name="submit" value="登録">

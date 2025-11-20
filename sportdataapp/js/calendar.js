@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var memo = prompt('メモ:');
       if (title) {
         
-        fetch('../PHP/home.php', {
+        fetch('../PHP/calendarsave.php', {
           method: 'POST',
           headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
