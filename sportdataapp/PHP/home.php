@@ -49,10 +49,11 @@ $records = [];
 while(mysqli_stmt_fetch($stmt2)){
     $records [] = [
         'title' => $title,
-        'startdate' => $startdate,
-        'enddate' => $enddate
+        'start' => $startdate,
+        'end' => $enddate
     ];
 }
+
 mysqli_stmt_close($stmt2);
 
 ?>
@@ -63,8 +64,19 @@ mysqli_stmt_close($stmt2);
         <meta charset="utf-8">
         <title>ホームページ</title>
         <link rel="stylesheet" href="../css/home.css">
+        <script>
+            const eventsFromPHP = <?= json_encode($records, JSON_UNESCAPED_UNICODE); ?>;
+        </script>
     </head>
     <body>
+        <div class="loader">
+            <div class="looping-rhombuses-spinner">
+                <div class="rhombus"></div>
+                <div class="rhombus"></div>
+                <div class="rhombus"></div>
+            </div>
+            <p class="txt">こんにちは！</p>
+        </div>
         <div class="home">
             <div class="meny">
                 <button class="meny-btn"></button>
@@ -136,7 +148,8 @@ mysqli_stmt_close($stmt2);
                 </div>
             </div>
         </div>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../js/loading.js"></script>
     <script src="../js/fullcalendar/dist/index.global.min.js"></script>
     <script src="../js/fullcalendar/packages/interaction/index.global.min.js"></script>
     <script src="../js/fullcalendar/packages/daygrid/index.global.min.js"></script>

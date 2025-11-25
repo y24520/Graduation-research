@@ -6,16 +6,18 @@ document.addEventListener('DOMContentLoaded', function() {
     initialView: 'dayGridMonth',
     selectable: true,
 
+    events: eventsFromPHP,
 
     select: function(info) {
       var title = prompt('イベント名:');
       var memo = prompt('メモ:');
+      var end = prompt('終了日');
       if (title) {
-        
+
         fetch('../PHP/calendarsave.php', {
           method: 'POST',
           headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded'
           },
           body: new URLSearchParams({
             title: title,
@@ -31,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
           end: info.endStr
         });
       }
+
       calendar.unselect();
     }
   });
