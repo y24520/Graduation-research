@@ -72,7 +72,7 @@ if(isset($_POST['send'])){
         <div class="login-form">
             <!-- 左側 -->
             <div class="left-login-form">
-                <h3>ログイン</h3>
+                <h2>ログイン</h2>
                 <form action="" method="post">
                     <!-- 団体ID -->
                     <label for="group-id">団体ID</label><br>
@@ -93,7 +93,7 @@ if(isset($_POST['send'])){
             </div>
             <!-- 右側 -->
             <div class="right-reg">
-                <h3>はじめてご利用の方</h3>
+                <h2>はじめてご利用の方</h2>
                 <p>ご利用には新規登録が必要です</p>
                 <a href="reg.php">新規登録はこちら</a>
             </div>

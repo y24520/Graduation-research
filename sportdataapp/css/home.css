@@ -1,55 +1,55 @@
 body{
-    background-color: #f5f7fb;
+    background-color: #ffffff;
 }
 
-
-.home {
-    display: flex;
+html, body {
+    margin: 0;
+    padding: 0;
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; 
+}
+
+/* メニュー */
 .meny{
-    width: 200px;
-    padding: 20px;
+    display: flex;
+    justify-content: center;
+    background-color: #9d9d9d;
+    height: 100px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
 }
 
-.meny-nav{
-    display: none;
-}
-
-.meny-nav.show{
-    display: block;
-    height: 500px;
-    border: 1px solid grey;
-    border-radius: 6px;
-    box-shadow: 2px 2px 2px rgba(0,0,0,0.2);
-    background-color: rgb(217, 254, 217);
-}
-
-.meny-nav.show li{
+.meny-nav ul{
+    display: flex;
+    justify-content: center;
     list-style: none;
+    margin: 20px;
 }
 
-.meny-nav.show a{
-    text-decoration: none;
+.meny-nav ul li{
+    margin: 10px;
 }
 
-.meny-btn{
+.meny-nav ul li button{
+    padding: 10px;
     border: none;
-    width: 50px;
-    height: 50px;
-    background-image: url(../img/meny_close.png);
-    background-size: cover;
-    background-position: center;
-    border-radius: 40px;
-    box-shadow: 3px 3px 2px rgba(0,0,0,0.5);
+    border-radius: 2px;
+    background-color: #000000;
 }
 
-.meny-btn:hover{
-    filter:brightness(0.8);
+.meny-nav ul li button a{
+    text-decoration: none;
+    color: white;
 }
 
-.meny-btn:active{
-    box-shadow: inset 3px 3px 2px rgba(0,0,0,0.2);
+/* ホーム */
+.home-all{
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
 }
 .home-left{
     display: block;
@@ -67,7 +67,7 @@ body{
     margin: 10px;
     border: 1px solid grey;
     border-radius: 6px;
-    box-shadow: 5px 5px 5px rgba(0,0,0,0.2);
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
     margin-left: 20px;
     background-color: white;      
 }
@@ -104,7 +104,7 @@ p{
     width: 530px;
     height: 38px;
     text-align: center;
-    background-color: rgb(210, 252, 208);
+    background-color: rgb(248, 248, 248);
 }
 
 #goal{
@@ -212,14 +212,14 @@ p{
 
 .loader .spinner {
   border-radius: 50%;
-  width: 15em;
-  height: 15em;
+  width: 10em;
+  height: 10em;
   font-size: 10px;
   text-indent: -9999em;
   border-top: 1.1em solid rgba(255,255,255,0.2);
   border-right: 1.1em solid rgba(255,255,255,0.2);
   border-bottom: 1.1em solid rgba(255,255,255,0.2);
-  border-left: 1.1em solid #abffb6;
+  border-left: 1.1em solid #000000;
   transform: translateZ(0);
   animation: load8 1.1s infinite linear;
 }
