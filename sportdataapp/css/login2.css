@@ -2,8 +2,6 @@
 body{
     background-color: #ffffff;
     font-family: "メイリオ", sans-serif;
-    height: 100vh;
-    margin: 0;
 }
 
 html, body {
@@ -17,13 +15,16 @@ html, body {
     box-sizing: border-box; 
 }
 
+.all{
+    margin: 200px;
+}
 h1{
     text-align: center;
 }
 
 .login-form{
     height: 500px;
-    width: 800px;
+    width: 850px;
     padding: 30px;
     display: flex;
     justify-content: space-around;

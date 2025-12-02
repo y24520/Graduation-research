@@ -68,6 +68,7 @@ if(isset($_POST['send'])){
         <link rel="stylesheet" href="../css/login2.css">
     </head>
     <body>
+        <div class=all>
         <h1>LOGIN</h1>
         <div class="login-form">
             <!-- 左側 -->
@@ -97,6 +98,7 @@ if(isset($_POST['send'])){
                 <p>ご利用には新規登録が必要です</p>
                 <a href="reg.php">新規登録はこちら</a>
             </div>
+        </div>
         </div>
     </body>
 </html>
