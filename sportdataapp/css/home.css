@@ -5,6 +5,7 @@ body{
 html, body {
     margin: 0;
     padding: 0;
+    height: 1000px;
 }
 
 * {
@@ -65,7 +66,7 @@ html, body {
 
 .user-border, .messege-area, .goal-border, .calendar-area{
     margin: 10px;
-    border: 1px solid grey;
+    border: 0px solid grey;
     border-radius: 6px;
     box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
     margin-left: 20px;
@@ -88,9 +89,11 @@ form{
     margin-left: 10px;
 }
 
-h3{
+h2{
     margin: 0px;
     margin-top: 5px;
+    border-left: solid 10px black;
+    padding-left: 10px ;
 }
 
 p{

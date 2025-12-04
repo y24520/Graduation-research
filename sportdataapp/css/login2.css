@@ -7,6 +7,8 @@ body{
 html, body {
     margin: 0;
     padding: 0;
+    display: flex;
+    justify-content: center;
 }
 
 * {
@@ -20,6 +22,8 @@ html, body {
 }
 h1{
     text-align: center;
+    font-family: "Palatino Linotype", serif;
+
 }
 
 .login-form{
@@ -44,6 +48,8 @@ h1{
     margin: 0px;
     margin-bottom: 20px;
     text-align: center;
+    border-left: solid 10px black;
+    padding-left: 10px;
 }
 
 input[type="text"],
@@ -94,6 +100,8 @@ input[type="submit"]:hover{
     margin: 0px;
     margin-bottom: 20px;
     text-align: center;
+    border-left: solid 10px black;
+    padding-left: 10px;
 }
 
 .right-reg p{

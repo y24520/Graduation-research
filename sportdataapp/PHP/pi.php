@@ -63,58 +63,63 @@ mysqli_stmt_close($stmt2);
 <head>
     <meta charset="utf-8">
     <title>ホームページ</title>
-    <link rel="stylesheet" href="../css/pi.css">
+    <link rel="stylesheet" href="../css/pi2.css">
 </head>
-<body>
-    <div class="container">
-        <div class="meny">
-            <button class="meny-btn"></button>
-            <nav class="meny-nav">
-                <ul>
-                    <li><button><a href="home.php">ホーム</a></button></li>
-                    <li><button><a href="pi.php">身体情報</a></button></li>
-                </ul>
-            </nav>
-        </div> 
-        <div class="input-panel">
-            <form id=piform action="" method="post">
-                <h3>データ入力</h3>
-                <label for="height">身長</label>
-                <input type="number" id="height" name="height" placeholder="cm" min="50" max="250" step="0.1"><br>
+<body>       
+    <!-- メニュー -->
+    <div class="meny">
+        <nav class="meny-nav">
+            <ul>
+            <li><button><a href="home.php">ホーム</a></button></li>
+                <li><button><a href="pi.php">身体情報</a></button></li>
+            </ul>
+        </nav>
+    </div>
+    <!-- 身体情報画面　-->
+        <div class="container">
+            <!-- 入力パネル -->
+            <div class="input-panel">
+                <h2> データ入力</h2>
+                <div class="form-all">
+                    <form id=piform action="" method="post" >
+                        <label for="height">身長</label>
+                        <input type="number" id="height" name="height" placeholder="cm" min="50" max="250" step="0.1"><br>
 
-                <label for="weight">体重</label>
-                <input type="number" id="weight" name="weight" placeholder="kg" min="0" max="300" step="0.1"><br>
+                        <label for="weight">体重</label>
+                        <input type="number" id="weight" name="weight" placeholder="kg" min="0" max="300" step="0.1"><br>
 
-                <label for="injury">怪我履歴</label>
-                <input type="text" id="injury" name="injury"><br>
+                        <label for="injury">怪我履歴</label>
+                        <input type="text" id="injury" name="injury"><br>
 
-                <label for="sleep_time">睡眠時間</label>
-                <input type="time" id="sleep_time" name="sleep_time" value="05:00" step="900"><br>
+                        <label for="sleep_time">睡眠時間</label>
+                        <input type="time" id="sleep_time" name="sleep_time" value="05:00" step="900"><br>
 
-                <input type="submit" value="送信">
-            </form>
-        </div>
-            <div class="graph-panel">
-                <div class="graph-panel_1">
-                    <h2>身長・体重・BMI</h2>
-                    <canvas class="graph height-weight-bmi"></canvas>
+                        <input type="submit" value="送信">
+                    </form>
                 </div>
-                <div class="graph-panel_2">
-                    <div class="panel-item">
-                        <h2>睡眠時間</h2>
-                        <canvas class="graph sleep"></canvas>
+            </div>
+            <!-- グラフパネル -->
+                <div class="graph-panel">
+                    <div class="graph-panel_1">
+                        <h2>身長・体重・BMI</h2>
+                        <canvas class="graph height-weight-bmi"></canvas>
                     </div>
-                    <div class="panel-item">
-                        <h2>怪我履歴</h2>
-                        <div class="graph injury">
-                            <?php foreach($records as $r): ?>
-                               <p><?= htmlspecialchars($r['create_at']) ?> : <?= htmlspecialchars($r['injury']) ?><p>                        
-                            <?php endforeach; ?>
+                    <div class="graph-panel_2">
+                        <div class="panel-item">
+                            <h2>睡眠時間</h2>
+                            <canvas class="graph sleep"></canvas>
+                        </div>
+                        <div class="panel-item">
+                            <h2>怪我履歴</h2>
+                            <div class="graph injury">
+                                <?php foreach($records as $r): ?>
+                                   <p><?= htmlspecialchars($r['create_at']) ?> : <?= htmlspecialchars($r['injury']) ?><p>                        
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
     <script>
         const records = <?= json_encode($records, JSON_UNESCAPED_UNICODE); ?>;
     </script>
