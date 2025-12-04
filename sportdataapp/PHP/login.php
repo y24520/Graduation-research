@@ -43,8 +43,8 @@ if(isset($_POST['send'])){
                 $_SESSION['height'] = $row['height'];
                 $_SESSION['weight'] = $row['weight'];
                 $_SESSION['position'] = $row['position'];
-
                 $_SESSION['show_loader'] = true;
+                $_SESSION['first_login'] = true;
 
                 header('Location: home.php');
                 exit();
@@ -68,12 +68,13 @@ if(isset($_POST['send'])){
         <link rel="stylesheet" href="../css/login2.css">
     </head>
     <body>
+        <div class=all>
         <h1>LOGIN</h1>
         <div class="login-form">
             <!-- 左側 -->
             <div class="left-login-form">
-                <h3>ログイン</h3>
-                <form action="" method="post">
+                <h2>ログイン</h2>
+                <form action="" method="post" id="login-form">
                     <!-- 団体ID -->
                     <label for="group-id">ID</label><br>
                     <input type="text" id="group_id" name="group_id"  placeholder="団体IDを入力してください" required><br> 
@@ -93,10 +94,11 @@ if(isset($_POST['send'])){
             </div>
             <!-- 右側 -->
             <div class="right-reg">
-                <h3>はじめてご利用の方</h3>
+                <h2>はじめてご利用の方</h2>
                 <p>ご利用には新規登録が必要です</p>
                 <a href="reg.php">新規登録はこちら</a>
             </div>
+        </div>
         </div>
     </body>
 </html>

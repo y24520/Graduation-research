@@ -1,0 +1,136 @@
+body{
+    background-color: #ffffff;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; 
+}
+
+/* メニュー */
+.meny{
+    display: flex;
+    justify-content: center;
+    background-color: #9d9d9d;
+    height: 100px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+}
+
+.meny-nav ul{
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    margin: 20px;
+}
+
+.meny-nav ul li{
+    margin: 10px;
+}
+
+.meny-nav ul li button{
+    padding: 10px;
+    border: none;
+    border-radius: 2px;
+    background-color: #000000;
+}
+
+.meny-nav ul li button a{
+    text-decoration: none;
+    color: white;
+}
+
+/* 入力 */
+h2{
+    margin: 0px;
+    margin-top: 5px;
+    border-left: solid 10px black;
+    padding-left: 10px;
+}
+
+.container{
+    display: flex;
+    justify-content: center;
+}
+
+.input-panel{
+    margin: 30px;
+    width: 500px;
+}
+
+.form-all{
+    border: solid 0px gray;
+    border-radius: 3px;
+    margin: 10px;
+    padding: 30px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #444;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="time"],
+input[type="text"]{
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+input[type="text"]{
+    height: 100px;
+}
+
+input[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  background-color: rgb(0, 0, 0);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+  background-color: rgb(144, 144, 144);
+  transition: box-shadow 0.1s ease;
+}
+
+input[type="submit"]:active {
+    box-shadow: inset 0 2px 4px rgb(0, 0, 0);
+}
+
+.graph-panel_1 {
+    margin: 30px;
+}
+
+.graph{
+    border: solid 0px gray;
+    border-radius: 3px;
+    margin: 10px;
+    padding: 30px;
+    width: 1200px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
+}
+
+.panel-item{
+    margin: 30px;
+}
+
+
+
