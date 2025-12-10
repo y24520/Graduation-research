@@ -89,6 +89,9 @@ mysqli_stmt_close($stmt2);
             <ul>
                 <li><button><a href="home.php">ホーム</a></button></li>
                 <li><button><a href="pi.php">身体情報</a></button></li>
+                <li><button><a href="pi.php">テニス</a></button></li>
+                <li><button><a href="pi.php">水泳</a></button></li>
+                <li><button><a href="pi.php">バスケ</a></button></li>
             </ul>
         </nav>
     </div>

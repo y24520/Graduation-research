@@ -65,7 +65,7 @@ if(isset($_POST['send'])){
     <head>
         <meta charset="UTF-8">
         <title>スポーツデータ分析可視化アプリ</title>
-        <link rel="stylesheet" href="../css/login2.css">
+        <link rel="stylesheet" href="../css/login.css">
     </head>
     <body>
         <div class=all>
