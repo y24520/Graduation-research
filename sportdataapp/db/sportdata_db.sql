@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- ホスト: 127.0.0.1
--- 生成日時: 2025-11-20 08:03:15
+-- 生成日時: 2025-12-15 08:22:05
 -- サーバのバージョン： 10.4.32-MariaDB
 -- PHP のバージョン: 8.2.12
 
@@ -43,7 +43,8 @@ CREATE TABLE `calendar_tbl` (
 --
 
 INSERT INTO `calendar_tbl` (`id`, `group_id`, `user_id`, `title`, `memo`, `startdate`, `enddate`, `create_at`) VALUES
-(4, 'cis', 'y24514', 'テスト', 'てすと', '2025-11-02', '2025-11-03', '2025-11-20 14:02:06');
+(6, 'cis', 'abe', 'あああ', 'あああ', '2025-12-03', '2025-12-04', '2025-12-03 14:42:20'),
+(7, 'cis', 'y24514', 'ないｎ', 'ｇ', '2025-12-07', '2025-12-10', '2025-12-11 16:10:00');
 
 -- --------------------------------------------------------
 
@@ -64,7 +65,9 @@ CREATE TABLE `goal_tbl` (
 --
 
 INSERT INTO `goal_tbl` (`goal_id`, `group_id`, `user_id`, `goal`, `created_at`) VALUES
-(4, 'cis', 'y24514', 'ストローク数を減らす', '2025-11-20 09:46:14');
+(4, 'cis', 'y24514', 'ストローク数を減らす', '2025-11-20 09:46:14'),
+(5, 'sangitan', 'h-abe', '120kgになる', '2025-12-03 13:47:46'),
+(6, 'cis', 'abe', '', '2025-12-03 14:15:07');
 
 -- --------------------------------------------------------
 
@@ -74,7 +77,7 @@ INSERT INTO `goal_tbl` (`goal_id`, `group_id`, `user_id`, `goal`, `created_at`) 
 
 CREATE TABLE `login_tbl` (
   `id` int(100) NOT NULL,
-  `group_id` varchar(100) DEFAULT NULL,
+  `group_id` varchar(100) NOT NULL,
   `user_id` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `name` varchar(25) NOT NULL,
@@ -90,7 +93,11 @@ CREATE TABLE `login_tbl` (
 
 INSERT INTO `login_tbl` (`id`, `group_id`, `user_id`, `password`, `name`, `dob`, `height`, `weight`, `position`) VALUES
 (13, 'cis', 'y24514', '$2y$10$MVyXrYFuMD/ULyZMNG40d.8yDyCa2FU4Ydm2EghYzPTmg2nj.lSYK', '藤原大輔', '2006-03-03', 170.0, 59.0, '学生会役員'),
-(16, '花巻東', 'y24514', '$2y$10$irKSeqOAkgWJ3hAlF3m2ru.SAsNgv7YiSbY7nd5fdbPbFuRlxdSpm', '藤原大輔', '2006-03-03', 170.0, 59.0, 'fly/fr');
+(16, '花巻東', 'y24514', '$2y$10$irKSeqOAkgWJ3hAlF3m2ru.SAsNgv7YiSbY7nd5fdbPbFuRlxdSpm', '藤原大輔', '2006-03-03', 170.0, 59.0, 'fly/fr'),
+(17, 'cis', 'y24513', '$2y$10$T2CgtBtyPu43inv7IY53reJ5v7f9YCJFboy9AI6rpPZlr9Xv9VCsq', '藤原啄都', '2025-12-18', 172.0, 59.0, 'バタフライ'),
+(18, 'sangitan', 'h-abe', '$2y$10$3077kKiMdxYuVABAokwcwOON0P5z5.psI.GWsh2ZlywJLrHYHJHwG', '安倍春菜', '2026-07-03', 190.0, 100.0, 'DF'),
+(19, 'cis', 'y24520', '$2y$10$UN6nKQIqkmpClpFUVdQM8ONs76V2bkS2CwuJy2gdC4rdL6TL6c98O', '吉田稜', '2025-07-21', 164.0, 60.0, '前衛'),
+(20, 'cis', 'abe', '$2y$10$5rnhaBbn/ycTIjygFdip1utCRMa/G7oh2CKa.ocM2R8f9JqS82yGO', '剛田武', '2025-11-12', 200.0, 100.0, 'OF');
 
 -- --------------------------------------------------------
 
@@ -116,7 +123,65 @@ CREATE TABLE `pi_tbl` (
 INSERT INTO `pi_tbl` (`id`, `group_id`, `user_id`, `height`, `weight`, `injury`, `sleeptime`, `create_at`) VALUES
 (24, 'cis', 'y24514', 170.0, 59.6, '', '08:00:00', '2025-11-17 11:14:36'),
 (29, 'cis', 'y24514', 170.0, 59.8, '左腕骨折', '09:00:00', '2025-11-17 11:27:34'),
-(31, 'cis', 'y24514', 172.0, 64.6, '', '05:00:00', '2025-11-18 09:43:57');
+(31, 'cis', 'y24514', 172.0, 64.6, '', '05:00:00', '2025-11-18 09:43:57'),
+(32, 'cis', 'abe', 190.0, 120.0, '', '05:00:00', '2025-12-03 13:55:10');
+
+-- --------------------------------------------------------
+
+--
+-- テーブルの構造 `swim_best_tbl`
+--
+
+CREATE TABLE `swim_best_tbl` (
+  `id` int(11) NOT NULL,
+  `group_id` varchar(50) NOT NULL,
+  `user_id` varchar(50) NOT NULL,
+  `pool` enum('short','long') NOT NULL,
+  `event` varchar(10) NOT NULL,
+  `distance` int(11) NOT NULL,
+  `best_time` decimal(6,2) NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- テーブルのデータのダンプ `swim_best_tbl`
+--
+
+INSERT INTO `swim_best_tbl` (`id`, `group_id`, `user_id`, `pool`, `event`, `distance`, `best_time`, `updated_at`) VALUES
+(1, 'cis', 'y24514', 'long', 'fly', 50, 28.00, '2025-12-15 02:00:18'),
+(3, 'cis', 'y24514', 'long', 'fr', 50, 25.78, '2025-12-15 02:09:51');
+
+-- --------------------------------------------------------
+
+--
+-- テーブルの構造 `swim_tbl`
+--
+
+CREATE TABLE `swim_tbl` (
+  `id` int(11) NOT NULL,
+  `group_id` varchar(100) NOT NULL,
+  `user_id` varchar(100) NOT NULL,
+  `pool` enum('short','long') NOT NULL,
+  `event` enum('fly','ba','br','fr','im') NOT NULL,
+  `distance` int(11) NOT NULL,
+  `total_time` decimal(6,2) NOT NULL COMMENT '秒（例: 75.32）',
+  `stroke_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`stroke_json`)),
+  `lap_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`lap_json`)),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- テーブルのデータのダンプ `swim_tbl`
+--
+
+INSERT INTO `swim_tbl` (`id`, `group_id`, `user_id`, `pool`, `event`, `distance`, `total_time`, `stroke_json`, `lap_json`, `created_at`) VALUES
+(10, 'cis', 'y24514', 'long', 'fly', 50, 29.98, '{\"stroke_50\":10}', '{\"lap_time_50\":\"29.98\"}', '2025-12-15 02:03:12'),
+(11, 'cis', 'y24514', 'long', 'fr', 50, 26.99, '{\"stroke_50\":15}', '{\"lap_time_50\":\"26.99\"}', '2025-12-15 02:04:27'),
+(33, 'cis', 'y24514', 'long', 'fr', 50, 29.98, '{\"stroke_50\":8}', '{\"lap_time_50\":\"29.98\"}', '2025-12-15 03:17:29'),
+(34, 'cis', 'y24514', 'long', 'fr', 50, 25.98, '{\"stroke_50\":22}', '{\"lap_time_50\":\"25.98\"}', '2025-12-15 03:18:13'),
+(35, 'cis', 'y24514', 'long', 'fr', 50, 25.98, '{\"stroke_50\":22}', '{\"lap_time_50\":\"25.98\"}', '2025-12-15 03:21:00'),
+(36, 'cis', 'y24514', 'long', 'fr', 50, 25.98, '{\"stroke_50\":22}', '{\"lap_time_50\":\"25.98\"}', '2025-12-15 03:22:54'),
+(37, 'cis', 'y24514', 'long', 'fr', 50, 25.98, '{\"stroke_50\":22}', '{\"lap_time_50\":\"25.98\"}', '2025-12-15 03:24:08');
 
 --
 -- ダンプしたテーブルのインデックス
@@ -127,8 +192,8 @@ INSERT INTO `pi_tbl` (`id`, `group_id`, `user_id`, `height`, `weight`, `injury`,
 --
 ALTER TABLE `calendar_tbl`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `group_id` (`group_id`,`user_id`),
-  ADD KEY `calendar_user` (`user_id`);
+  ADD KEY `calendar_user` (`user_id`),
+  ADD KEY `calendar_group_id` (`group_id`,`user_id`) USING BTREE;
 
 --
 -- テーブルのインデックス `goal_tbl`
@@ -155,6 +220,22 @@ ALTER TABLE `pi_tbl`
   ADD KEY `pi_user` (`user_id`) USING BTREE;
 
 --
+-- テーブルのインデックス `swim_best_tbl`
+--
+ALTER TABLE `swim_best_tbl`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uniq_best` (`group_id`,`user_id`,`pool`,`event`,`distance`),
+  ADD KEY `swimbest_user_id` (`user_id`);
+
+--
+-- テーブルのインデックス `swim_tbl`
+--
+ALTER TABLE `swim_tbl`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `swim_group_id` (`group_id`),
+  ADD KEY `swim_user_id` (`user_id`);
+
+--
 -- ダンプしたテーブルの AUTO_INCREMENT
 --
 
@@ -162,25 +243,37 @@ ALTER TABLE `pi_tbl`
 -- テーブルの AUTO_INCREMENT `calendar_tbl`
 --
 ALTER TABLE `calendar_tbl`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- テーブルの AUTO_INCREMENT `goal_tbl`
 --
 ALTER TABLE `goal_tbl`
-  MODIFY `goal_id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `goal_id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- テーブルの AUTO_INCREMENT `login_tbl`
 --
 ALTER TABLE `login_tbl`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- テーブルの AUTO_INCREMENT `pi_tbl`
 --
 ALTER TABLE `pi_tbl`
-  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(100) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+
+--
+-- テーブルの AUTO_INCREMENT `swim_best_tbl`
+--
+ALTER TABLE `swim_best_tbl`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- テーブルの AUTO_INCREMENT `swim_tbl`
+--
+ALTER TABLE `swim_tbl`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- ダンプしたテーブルの制約
@@ -206,6 +299,20 @@ ALTER TABLE `goal_tbl`
 ALTER TABLE `pi_tbl`
   ADD CONSTRAINT `pi_group` FOREIGN KEY (`group_id`) REFERENCES `login_tbl` (`group_id`),
   ADD CONSTRAINT `pi_user` FOREIGN KEY (`user_id`) REFERENCES `login_tbl` (`user_id`);
+
+--
+-- テーブルの制約 `swim_best_tbl`
+--
+ALTER TABLE `swim_best_tbl`
+  ADD CONSTRAINT `swimbest_group_id` FOREIGN KEY (`group_id`) REFERENCES `login_tbl` (`group_id`),
+  ADD CONSTRAINT `swimbest_user_id` FOREIGN KEY (`user_id`) REFERENCES `login_tbl` (`user_id`);
+
+--
+-- テーブルの制約 `swim_tbl`
+--
+ALTER TABLE `swim_tbl`
+  ADD CONSTRAINT `swim_group_id` FOREIGN KEY (`group_id`) REFERENCES `login_tbl` (`group_id`),
+  ADD CONSTRAINT `swim_user_id` FOREIGN KEY (`user_id`) REFERENCES `login_tbl` (`user_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
