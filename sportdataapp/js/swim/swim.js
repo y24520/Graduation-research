@@ -142,6 +142,8 @@ function formatTime(sec) {
 /* =====================
    自己ベスト一覧表示
 ===================== */
+console.log(BEST_LIST);
+
 function renderBestList() {
     const tbody = document.getElementById("best-list-body");
     if (!tbody) return;

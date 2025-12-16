@@ -63,21 +63,11 @@ mysqli_stmt_close($stmt2);
 <head>
     <meta charset="utf-8">
     <title>ホームページ</title>
-    <link rel="stylesheet" href="../css/pi2.css">
+    <link rel="stylesheet" href="../css/pi.css">
+    <link rel="stylesheet" href="../css/site.css">
 </head>
 <body>       
-    <!-- メニュー -->
-    <div class="meny">
-        <nav class="meny-nav">
-            <ul>
-                <li><button><a href="home.php">ホーム</a></button></li>
-                <li><button><a href="pi.php">身体情報</a></button></li>
-                <li><button><a href="">テニス</a></button></li>
-                <li><button><a href="swim.php">水泳</a></button></li>
-                <li><button><a href="">バスケ</a></button></li>
-            </ul>
-        </nav>
-    </div>
+    <?php $NAV_BASE = '.'; require_once __DIR__ . '/header.php'; ?>
     <!-- 身体情報画面　-->
         <div class="container">
             <!-- 入力パネル -->

@@ -13,37 +13,7 @@ html, body {
     box-sizing: border-box; 
 }
 
-/* メニュー */
-.meny{
-    display: flex;
-    justify-content: center;
-    background-color: #ffffff;
-    height: 100px;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.2);
-}
-
-.meny-nav ul{
-    display: flex;
-    justify-content: center;
-    list-style: none;
-    margin: 20px;
-}
-
-.meny-nav ul li{
-    margin: 10px;
-}
-
-.meny-nav ul li button{
-    padding: 10px;
-    border: none;
-    border-radius: 2px;
-    background-color: #000000;
-}
-
-.meny-nav ul li button a{
-    text-decoration: none;
-    color: white;
-}
+/* Navigation styles moved to css/nav.css - header.php will load them */
 
 /* 入力 */
 h2{

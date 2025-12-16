@@ -1,17 +1,27 @@
 <?php
 session_start();
 
+var_dump($_SESSION['group_id']);
+var_dump($_SESSION['user_id']);
+
 $link = mysqli_connect("localhost", "y24514", "Kr96main0303", "sportdata_db");
 mysqli_set_charset($link, "utf8");
 
 $group_id = $_SESSION['group_id'];
 $user_id  = $_SESSION['user_id'];
 
+/* ===== 初期化（←重要）===== */
+$pb_diff     = null;
+$is_new_best = false;
+$best_time   = null;
+$best_list   = [];
+$prev_time   = null;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $pool      = $_POST['pool'];
-    $event     = $_POST['event'];
-    $distance  = (int)$_POST['distance'];
+    $pool       = $_POST['pool'];
+    $event      = $_POST['event'];
+    $distance   = (int)$_POST['distance'];
     $total_time = isset($_POST['total_time']) ? (float)$_POST['total_time'] : 0;
 
     /* ===== ストロークデータ ===== */
@@ -38,25 +48,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             (group_id, user_id, pool, event, distance, total_time, stroke_json, lap_json)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($link, $sql);
-    mysqli_stmt_bind_param($stmt, "ssssidss", $group_id, $user_id, $pool, $event, $distance, $total_time, $stroke_json, $lap_json);
+    mysqli_stmt_bind_param(
+        $stmt,
+        "ssssidss",
+        $group_id,
+        $user_id,
+        $pool,
+        $event,
+        $distance,
+        $total_time,
+        $stroke_json,
+        $lap_json
+    );
     mysqli_stmt_execute($stmt);
-    $saved = mysqli_stmt_affected_rows($stmt) > 0;
 
-    echo $saved ? "<script>alert('保存しました');</script>" : "<script>alert('保存失敗');</script>";
-
-    /* ===== 自己ベスト取得・更新 ===== */
+    /* ===== 自己ベスト取得 ===== */
     $sql_best = "SELECT best_time
                  FROM swim_best_tbl
-                 WHERE group_id = ? AND user_id = ? AND pool = ? AND event = ? AND distance = ?";
+                 WHERE group_id=? AND user_id=? AND pool=? AND event=? AND distance=?";
     $stmt_best = mysqli_prepare($link, $sql_best);
     mysqli_stmt_bind_param($stmt_best, "ssssi", $group_id, $user_id, $pool, $event, $distance);
     mysqli_stmt_execute($stmt_best);
     $res_best = mysqli_stmt_get_result($stmt_best);
     $row_best = mysqli_fetch_assoc($res_best);
 
-    $best_time   = $row_best['best_time'] ?? null;
-    $is_new_best = false;
-    $pb_diff     = null;
+    $best_time = $row_best['best_time'] ?? null;
 
     if ($best_time === null || $total_time < $best_time) {
         $is_new_best = true;
@@ -67,31 +83,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        VALUES (?, ?, ?, ?, ?, ?)
                        ON DUPLICATE KEY UPDATE best_time = VALUES(best_time)";
         $stmt_up = mysqli_prepare($link, $sql_upsert);
-        mysqli_stmt_bind_param($stmt_up, "ssssid", $group_id, $user_id, $pool, $event, $distance, $total_time);
+        mysqli_stmt_bind_param(
+            $stmt_up,
+            "ssssid",
+            $group_id,
+            $user_id,
+            $pool,
+            $event,
+            $distance,
+            $total_time
+        );
         mysqli_stmt_execute($stmt_up);
     } else {
         $pb_diff = $total_time - $best_time;
     }
 
-    /* ===== 自己ベスト一覧取得 ===== */
-    $sql_best_list = "SELECT pool, event, distance, best_time
-                      FROM swim_best_tbl
-                      WHERE group_id = ? AND user_id = ?
-                      ORDER BY pool, event, distance";
-    $stmt_list = mysqli_prepare($link, $sql_best_list);
-    mysqli_stmt_bind_param($stmt_list, "ss", $group_id, $user_id);
-    mysqli_stmt_execute($stmt_list);
-    $res_list = mysqli_stmt_get_result($stmt_list);
 
-    $best_list = [];
-    while ($row = mysqli_fetch_assoc($res_list)) {
-        $best_list[] = $row;
-    }
-
-    /* ===== 前回タイム取得 ===== */
+    /* ===== 前回タイム ===== */
     $sql_prev = "SELECT total_time
                  FROM swim_tbl
-                 WHERE group_id = ? AND user_id = ? AND pool = ? AND event = ? AND distance = ?
+                 WHERE group_id=? AND user_id=? AND pool=? AND event=? AND distance=?
                  ORDER BY created_at DESC
                  LIMIT 1";
     $stmt_prev = mysqli_prepare($link, $sql_prev);
@@ -101,6 +112,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $row_prev = mysqli_fetch_assoc($res_prev);
     $prev_time = $row_prev['total_time'] ?? null;
 }
+
+/* ===== 自己ベスト一覧（常に取得）===== */
+$sql_best_list = "SELECT pool, event, distance, best_time
+                  FROM swim_best_tbl
+                  WHERE group_id=? AND user_id=?
+                  ORDER BY pool, event, distance";
+$stmt_list = mysqli_prepare($link, $sql_best_list);
+mysqli_stmt_bind_param($stmt_list, "ss", $group_id, $user_id);
+mysqli_stmt_execute($stmt_list);
+$res_list = mysqli_stmt_get_result($stmt_list);
+
+$best_list = [];
+while ($row = mysqli_fetch_assoc($res_list)) {
+    $best_list[] = $row;
+}
 ?>
 
 <!DOCTYPE html>
@@ -109,22 +135,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="utf-8">
     <title>水泳</title>
     <link rel="stylesheet" href="../../css/swim.css">
+    <link rel="stylesheet" href="../../css/site.css">
 </head>
 <body>
 <div class="all">
 
     <!-- メニュー -->
-    <div class="meny">
-        <nav class="meny-nav">
-            <ul>
-                <li><button><a href="../home.php">ホーム</a></button></li>
-                <li><button><a href="../pi.php">身体情報</a></button></li>
-                <li><button><a href="">テニス</a></button></li>
-                <li><button><a href="swim.php">水泳</a></button></li>
-                <li><button><a href="">バスケ</a></button></li>
-            </ul>
-        </nav>
-    </div>
+    <?php $NAV_BASE = '..'; require_once __DIR__ . '/../header.php'; ?>
 
     <div class="top">
         <div class="input-form">
@@ -238,13 +255,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<script src="../../js/swim/swim.js"></script>
 <script>
-    const pbDiff    = <?= $pb_diff !== null ? $pb_diff : "null" ?>;
-    const isNewBest = <?= $is_new_best ? "true" : "false" ?>;
-    const bestTime  = <?= $best_time !== null ? $best_time : "null" ?>;
+    const pbDiff    = <?= json_encode($pb_diff) ?>;
+    const isNewBest = <?= json_encode($is_new_best) ?>;
+    const bestTime  = <?= json_encode($best_time) ?>;
     const BEST_LIST = <?= json_encode($best_list, JSON_UNESCAPED_UNICODE) ?>;
-    const PREV_TIME = <?= $prev_time !== null ? $prev_time : "null" ?>;
+    const PREV_TIME = <?= json_encode($prev_time) ?>;
 </script>
+
+<script src="../../js/swim/swim.js"></script>
 </body>
 </html>

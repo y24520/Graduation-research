@@ -68,7 +68,7 @@ if(isset($_POST['send'])){
         <link rel="stylesheet" href="../css/login.css">
     </head>
     <body>
-        <div class=all>
+    <div class=all>
         <h1>LOGIN</h1>
         <div class="login-form">
             <!-- 左側 -->

@@ -49,9 +49,11 @@ if(isset($_POST['reg'])){
     <meta charset="UTF-8">
     <title>新規登録</title>
     <link rel="stylesheet" href="../css/reg2.css">
+    <link rel="stylesheet" href="../css/site.css">
 </head>
 
 <body>
+
 <h1>新規登録</h1>
 
 <form action="" method="post">

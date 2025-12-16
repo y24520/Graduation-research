@@ -67,6 +67,7 @@ mysqli_stmt_close($stmt2);
     <meta charset="utf-8">
     <title>ホームページ</title>
     <link rel="stylesheet" href="../css/home.css">
+    <link rel="stylesheet" href="../css/site.css">
 
     <script>
         const eventsFromPHP = <?= json_encode($records, JSON_UNESCAPED_UNICODE); ?>;
@@ -74,7 +75,6 @@ mysqli_stmt_close($stmt2);
     </script>
 </head>
 <body>
-
 <?php if ($showLoader): ?>
     <div class="loader">
         <div class="spinner"></div>
@@ -82,19 +82,10 @@ mysqli_stmt_close($stmt2);
     </div>
 <?php endif; ?>
 
+<?php $NAV_BASE = '.'; require_once __DIR__ . '/header.php'; ?>
+
 <div class="home">
-    <!-- メニュー -->
-    <div class="meny">
-        <nav class="meny-nav">
-            <ul>
-                <li><button><a href="home.php">ホーム</a></button></li>
-                <li><button><a href="pi.php">身体情報</a></button></li>
-                <li><button><a href="">テニス</a></button></li>
-                <li><button><a href="swim/swim.php">水泳</a></button></li>
-                <li><button><a href="">バスケ</a></button></li>
-            </ul>
-        </nav>
-    </div>
+
     
     <!-- ホーム画面 -->
     <div class="home-all">
