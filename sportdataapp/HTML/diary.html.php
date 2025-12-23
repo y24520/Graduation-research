@@ -6,120 +6,195 @@
     <title>日記 - Sports Data</title>
     <link rel="stylesheet" href="../css/site.css">
     <link rel="stylesheet" href="../css/diary.css">
-    
-    <script>
-        const showLoader = <?= $showLoader ? 'true' : 'false' ?>;
-    </script>
 </head>
 <body>
-<?php if ($showLoader): ?>
-    <div class="loader">
-        <div class="spinner"></div>
-        <p class="txt">読み込み中...</p>
-    </div>
-<?php endif; ?>
 
 <?php require_once __DIR__ . '/../PHP/header.php'; ?>
 
 <div class="diary-container">
-    <h1 class="page-title">日記</h1>
-    
-    <?php if ($success_message): ?>
-    <div class="message-banner success">
-        <?= htmlspecialchars($success_message, ENT_QUOTES, 'UTF-8') ?>
-    </div>
-    <?php endif; ?>
-    
-    <?php if ($error_message): ?>
-    <div class="message-banner error">
-        <span class="message-icon">✗</span>
-        <?= htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8') ?>
-    </div>
-    <?php endif; ?>
-    
-    <!-- 日記入力フォーム -->
-    <div class="diary-form-section">
-        <h2 class="section-title">新しい日記を書く</h2>
-        <form method="post" class="diary-form" id="diaryForm">
-            <div class="form-group">
-                <label for="diary_date">日付 <span class="required">*</span></label>
-                <input type="date" id="diary_date" name="diary_date" required value="<?= date('Y-m-d') ?>">
-            </div>
-            
-            <div class="form-group">
-                <label for="title">タイトル</label>
-                <input type="text" id="title" name="title" placeholder="今日のタイトル（任意）" maxlength="200">
-            </div>
-            
-            <div class="form-group">
-                <label for="content">内容 <span class="required">*</span></label>
-                <textarea id="content" name="content" rows="8" placeholder="今日の出来事や感想を書きましょう..." required></textarea>
-                <div class="char-count">
-                    <span id="charCount">0</span> 文字
-                </div>
-            </div>
-            
-            <div class="form-actions">
-                <button type="submit" name="save_diary" class="btn btn-primary">
-                    保存
-                </button>
-                <button type="button" class="btn btn-secondary" onclick="resetForm()">
-                    クリア
-                </button>
-            </div>
-        </form>
+    <!-- ヘッダーセクション -->
+    <div class="diary-header-section">
+        <div class="diary-title-group">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                <line x1="10" y1="6" x2="16" y2="6"></line>
+                <line x1="10" y1="10" x2="16" y2="10"></line>
+                <line x1="10" y1="14" x2="16" y2="14"></line>
+            </svg>
+            <h1 class="page-title">日記</h1>
+        </div>
+        <button id="new-diary-btn" class="new-diary-btn" onclick="openDiaryModal()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            新しい日記を書く
+        </button>
     </div>
     
-    <!-- 日記一覧 -->
-    <div class="diary-list-section">
-        <h2 class="section-title">過去の日記 (<?= count($diaries) ?>件)</h2>
-        
+    <!-- 検索・フィルター -->
+    <div class="diary-filters">
+        <div class="search-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input type="text" id="diary-search" placeholder="日記を検索...">
+        </div>
+        <div class="filter-tags" id="filter-tags">
+            <!-- タグが動的に追加されます -->
+        </div>
+    </div>
+    
+    <!-- メッセージエリア -->
+    <div id="message-area" class="message-area"></div>
+    
+    <!-- 日記リスト -->
+    <div class="diary-grid" id="diary-grid">
         <?php if (empty($diaries)): ?>
         <div class="empty-state">
-            <p>まだ日記がありません。<br>最初の日記を書いてみましょう！</p>
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            <h3>まだ日記がありません</h3>
+            <p>最初の日記を書いてみましょう！</p>
         </div>
         <?php else: ?>
-        <div class="diary-list">
             <?php foreach ($diaries as $diary): ?>
-            <div class="diary-item">
-                <div class="diary-header">
-                    <div class="diary-date">
-                        <span class="date-icon"></span>
-                        <?= date('Y年n月j日 (D)', strtotime($diary['diary_date'])) ?>
+            <div class="diary-card" data-id="<?= $diary['id'] ?>" data-tags="<?= htmlspecialchars($diary['tags'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                <div class="diary-card-header">
+                    <div class="diary-card-date">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <?= date('Y年m月d日', strtotime($diary['diary_date'])) ?>
                     </div>
-                    <div class="diary-actions">
-                        <button class="btn-icon-small" onclick="editDiary(<?= $diary['id'] ?>, '<?= htmlspecialchars($diary['diary_date'], ENT_QUOTES, 'UTF-8') ?>', '<?= htmlspecialchars($diary['title'], ENT_QUOTES, 'UTF-8') ?>', <?= json_encode($diary['content']) ?>)" title="編集">
-
+                    <div class="diary-card-actions">
+                        <button class="btn-icon" onclick="editDiary(<?= $diary['id'] ?>)" title="編集">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
                         </button>
-                        <form method="post" style="display:inline;" onsubmit="return confirm('本当に削除しますか？')">
-                            <input type="hidden" name="diary_id" value="<?= $diary['id'] ?>">
-                            <button type="submit" name="delete_diary" class="btn-icon-small delete" title="削除">
-                                
-                            </button>
-                        </form>
+                        <button class="btn-icon btn-delete" onclick="deleteDiary(<?= $diary['id'] ?>)" title="削除">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
-                
                 <?php if (!empty($diary['title'])): ?>
-                <h3 class="diary-title"><?= htmlspecialchars($diary['title'], ENT_QUOTES, 'UTF-8') ?></h3>
+                <h3 class="diary-card-title"><?= htmlspecialchars($diary['title'], ENT_QUOTES, 'UTF-8') ?></h3>
                 <?php endif; ?>
-                
-                <div class="diary-content">
-                    <?= nl2br(htmlspecialchars($diary['content'], ENT_QUOTES, 'UTF-8')) ?>
+                <div class="diary-card-content">
+                    <?= nl2br(htmlspecialchars(mb_substr($diary['content'], 0, 150, 'UTF-8'), ENT_QUOTES, 'UTF-8')) ?>
+                    <?= mb_strlen($diary['content'], 'UTF-8') > 150 ? '...' : '' ?>
                 </div>
-                
-                <div class="diary-footer">
-                    <span class="diary-timestamp">
-                        作成: <?= date('Y/m/d H:i', strtotime($diary['created_at'])) ?>
-                        <?php if ($diary['updated_at'] !== $diary['created_at']): ?>
-                        | 更新: <?= date('Y/m/d H:i', strtotime($diary['updated_at'])) ?>
-                        <?php endif; ?>
-                    </span>
+                <?php if (!empty($diary['tags'])): ?>
+                <div class="diary-card-tags">
+                    <?php foreach (explode(',', $diary['tags']) as $tag): ?>
+                    <span class="tag"><?= htmlspecialchars(trim($tag), ENT_QUOTES, 'UTF-8') ?></span>
+                    <?php endforeach; ?>
                 </div>
+                <?php endif; ?>
             </div>
             <?php endforeach; ?>
-        </div>
         <?php endif; ?>
+    </div>
+</div>
+
+<!-- 日記モーダル -->
+<div id="diaryModal" class="diary-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title">新しい日記</h2>
+            <button id="closeDiaryModal" class="close-modal-btn" onclick="closeDiaryModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <form id="diaryForm" class="modal-body">
+            <input type="hidden" id="diary-id" value="">
+            
+            <div class="form-group">
+                <label for="diaryDate">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    日付
+                </label>
+                <input type="date" id="diaryDate" value="<?= date('Y-m-d') ?>" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="diaryTitle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="4" y1="9" x2="20" y2="9"></line>
+                        <line x1="4" y1="15" x2="20" y2="15"></line>
+                        <line x1="10" y1="3" x2="8" y2="21"></line>
+                        <line x1="16" y1="3" x2="14" y2="21"></line>
+                    </svg>
+                    タイトル
+                </label>
+                <input type="text" id="diaryTitle" placeholder="今日のタイトル（任意）" maxlength="200">
+            </div>
+            
+            <div class="form-group">
+                <label for="diaryContent">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    内容 <span class="required">*</span>
+                </label>
+                <textarea id="diaryContent" rows="10" placeholder="今日の出来事や感想を書いてみましょう..." required></textarea>
+                <div class="char-count">
+                    <span id="modal-char-count">0</span> 文字
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="diaryTags">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
+                    タグ
+                </label>
+                <input type="text" id="diaryTags" placeholder="タグをカンマ区切りで入力（例：練習, 大会, 記録）">
+                <small>タグを付けると後で検索しやすくなります</small>
+            </div>
+        </form>
+        <div class="modal-footer">
+            <button id="deleteBtn" type="button" class="delete-btn" onclick="deleteDiary()" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                削除
+            </button>
+            <button type="button" class="cancel-btn" onclick="closeDiaryModal()">キャンセル</button>
+            <button type="submit" class="save-btn" form="diaryForm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                保存
+            </button>
+        </div>
     </div>
 </div>
 

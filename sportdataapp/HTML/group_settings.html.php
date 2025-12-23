@@ -84,9 +84,9 @@
                     </div>
                 </div>
                 <?php if ($is_creator && $member['user_id'] !== $user_id): ?>
-                <form method="post" style="display:inline;" onsubmit="return confirm('<?= htmlspecialchars($member['name'], ENT_QUOTES, 'UTF-8') ?>さんをグループから削除しますか？')">
+                <form method="post" style="display:inline;" id="removeForm_<?= htmlspecialchars($member['user_id'], ENT_QUOTES, 'UTF-8') ?>">
                     <input type="hidden" name="remove_user_id" value="<?= htmlspecialchars($member['user_id'], ENT_QUOTES, 'UTF-8') ?>">
-                    <button type="submit" name="remove_member" class="btn-remove">削除</button>
+                    <button type="button" class="btn-remove" onclick="confirmRemoveMember('<?= htmlspecialchars($member['user_id'], ENT_QUOTES, 'UTF-8') ?>', '<?= htmlspecialchars($member['name'], ENT_QUOTES, 'UTF-8') ?>')">削除</button>
                 </form>
                 <?php endif; ?>
             </div>
@@ -120,10 +120,62 @@
     <?php endif; ?>
 </div>
 
+<!-- メンバー削除確認モーダル -->
+<div id="removeMemberModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content delete-confirm-modal">
+        <div class="modal-body">
+            <p class="delete-message" id="removeMemberMessage"></p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" onclick="closeRemoveMemberModal()">キャンセル</button>
+            <button type="button" class="btn btn-danger" onclick="confirmRemove()">削除</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="../js/loading.js"></script>
 
 <script>
+let pendingRemoveUserId = null;
+
+function confirmRemoveMember(userId, userName) {
+    pendingRemoveUserId = userId;
+    document.getElementById('removeMemberMessage').textContent = userName + 'さんをグループから削除しますか?';
+    openRemoveMemberModal();
+}
+
+function openRemoveMemberModal() {
+    const modal = document.getElementById('removeMemberModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeRemoveMemberModal() {
+    const modal = document.getElementById('removeMemberModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    pendingRemoveUserId = null;
+}
+
+function confirmRemove() {
+    if (pendingRemoveUserId) {
+        const form = document.getElementById('removeForm_' + pendingRemoveUserId);
+        if (form) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'remove_member';
+            input.value = '1';
+            form.appendChild(input);
+            form.submit();
+        }
+    }
+}
+
 // 成功メッセージを3秒後に消す
 const successBanner = document.querySelector('.message-banner.success');
 if (successBanner) {

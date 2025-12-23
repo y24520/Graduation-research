@@ -66,21 +66,24 @@ if (mysqli_stmt_execute($stmt)) {
         $row['last_time'] = $last_msg['created_at'] ?? null;
         
         // 未読メッセージ数を取得（既読状態テーブルを使用）
+        // 相手から自分へのメッセージで、まだ読んでいないもの
         $unread_stmt = mysqli_prepare($link, "
-            SELECT COUNT(*) as unread_count
+            SELECT COUNT(c.id) as unread_count
             FROM chat_tbl c
-            LEFT JOIN chat_read_status_tbl r 
-                ON r.user_id = ? 
-                AND r.group_id = ? 
-                AND r.chat_type = 'direct' 
-                AND r.recipient_id = c.user_id
             WHERE c.group_id = ?
             AND c.chat_type = 'direct'
             AND c.user_id = ?
             AND c.recipient_id = ?
-            AND (r.last_read_message_id IS NULL OR c.id > r.last_read_message_id)
+            AND c.id > COALESCE(
+                (SELECT MAX(last_read_message_id) 
+                 FROM chat_read_status_tbl 
+                 WHERE user_id = ? 
+                 AND group_id = ? 
+                 AND chat_type = 'direct' 
+                 AND recipient_id = ?
+                ), 0)
         ");
-        mysqli_stmt_bind_param($unread_stmt, "sssss", $user_id, $group_id, $group_id, $row['user_id'], $user_id);
+        mysqli_stmt_bind_param($unread_stmt, "ssssss", $group_id, $row['user_id'], $user_id, $user_id, $group_id, $row['user_id']);
         mysqli_stmt_execute($unread_stmt);
         $unread_result = mysqli_stmt_get_result($unread_stmt);
         $unread_row = mysqli_fetch_assoc($unread_result);
@@ -111,20 +114,22 @@ if (mysqli_stmt_execute($stmt)) {
     while ($row = mysqli_fetch_assoc($result)) {
         // 未読数を取得
         $unread_stmt = mysqli_prepare($link, "
-            SELECT COUNT(*) as unread_count
+            SELECT COUNT(c.id) as unread_count
             FROM chat_tbl c
-            LEFT JOIN chat_read_status_tbl r 
-                ON r.user_id = ? 
-                AND r.group_id = ? 
-                AND r.chat_type = 'group' 
-                AND r.chat_group_id = c.chat_group_id
             WHERE c.group_id = ?
             AND c.chat_type = 'group'
             AND c.chat_group_id = ?
             AND c.user_id != ?
-            AND (r.last_read_message_id IS NULL OR c.id > r.last_read_message_id)
+            AND c.id > COALESCE(
+                (SELECT MAX(last_read_message_id) 
+                 FROM chat_read_status_tbl 
+                 WHERE user_id = ? 
+                 AND group_id = ? 
+                 AND chat_type = 'group' 
+                 AND chat_group_id = ?
+                ), 0)
         ");
-        mysqli_stmt_bind_param($unread_stmt, "sssis", $user_id, $group_id, $group_id, $row['chat_group_id'], $user_id);
+        mysqli_stmt_bind_param($unread_stmt, "ssissi", $group_id, $row['chat_group_id'], $user_id, $user_id, $group_id, $row['chat_group_id']);
         mysqli_stmt_execute($unread_stmt);
         $unread_result = mysqli_stmt_get_result($unread_stmt);
         $unread_row = mysqli_fetch_assoc($unread_result);

@@ -23,85 +23,142 @@
 
 <div class="home">
     <!-- ホーム画面 -->
-    <div class="home-all">
-        <!-- 目標を上部全体に配置 -->
-        <div class="goal">
-            <div class="goal-border">
-                <!-- 今月の目標が未登録の場合：入力フォーム表示 -->
-                <form id="goal-form" <?= $hasGoalThisMonth ? 'class="hidden"' : '' ?> action="goalsave.php" method="post">
-                    <input type="text" id="goal" name="goal" placeholder="今月の目標を入力" value="<?= htmlspecialchars($corrent_goal, ENT_QUOTES, 'UTF-8') ?>">
-                    <input type="submit" id="goal-reg" name="submit" value="登録">
-                </form>
-                
-                <!-- 今月の目標が登録済みの場合:現在の目標表示 -->
-                <div id="goal-display" class="<?= !$hasGoalThisMonth ? 'hidden' : '' ?>">
-                    <p class="now-goal"><?= htmlspecialchars($corrent_goal ?: '目標が登録されていません', ENT_QUOTES, 'UTF-8') ?></p>
-                    <button type="button" id="edit-goal-btn">変更</button>
+    <div class="home-container">
+        <!-- 上部セクション -->
+        <div class="home-top-row">
+            <!-- 目標カード -->
+            <div class="goal-card card">
+                <div class="goal-card-header">
+                    <h3 class="goal-card-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="6"></circle>
+                            <circle cx="12" cy="12" r="2"></circle>
+                        </svg>
+                        今月の目標
+                    </h3>
+                </div>
+                <div class="goal-card-body">
+                    <!-- 目標表示エリア -->
+                    <div id="goal-display-area" class="<?= $hasGoalThisMonth ? '' : 'hidden' ?>">
+                        <p class="goal-text-display" id="goal-text-display"><?= htmlspecialchars($corrent_goal ?: '', ENT_QUOTES, 'UTF-8') ?></p>
+                        <button type="button" id="edit-goal-btn" class="goal-action-btn btn-edit">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            編集
+                        </button>
+                    </div>
+                    
+                    <!-- 目標入力エリア -->
+                    <div id="goal-input-area" class="<?= $hasGoalThisMonth ? 'hidden' : '' ?>">
+                        <textarea id="goal-input" class="goal-textarea" placeholder="今月達成したい目標を入力してください..." rows="3"><?= htmlspecialchars($corrent_goal, ENT_QUOTES, 'UTF-8') ?></textarea>
+                        <div class="goal-actions">
+                            <button type="button" id="save-goal-btn" class="goal-action-btn btn-save">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                保存
+                            </button>
+                            <button type="button" id="cancel-goal-btn" class="goal-action-btn btn-cancel <?= $hasGoalThisMonth ? '' : 'hidden' ?>">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                                キャンセル
+                            </button>
+                        </div>
+                        <div id="goal-message" class="goal-message"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- 左側 -->
-        <div class="home-left">
-            <!--　ユーザー情報 -->
-            <div class="user">
-                <div class="user-border">
-                    <div class="user-header">
+            
+            <!--　ユーザー情報カード -->
+            <div class="user-card card">
+                <div class="card-body">
+                    <div class="user-profile">
                         <div class="user-avatar-large">
                             <?= mb_substr($userName, 0, 1, 'UTF-8') ?>
-                            <div class="user-status-indicator"></div>
+                            <div class="status-dot"></div>
                         </div>
-                        <div class="user-header-info">
+                        <div class="user-info">
                             <h3 class="user-name"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></h3>
                             <p class="user-position"><?= htmlspecialchars($userPosition, ENT_QUOTES, 'UTF-8') ?></p>
                         </div>
                     </div>
-                    <div class="user-stats-grid">
-                        <div class="user-stat-item">
-                            <div class="stat-icon"></div>
-                            <div class="stat-info">
-                                <span class="stat-label">生年月日</span>
-                                <span class="stat-value"><?= htmlspecialchars($userDob, ENT_QUOTES, 'UTF-8') ?></span>
-                            </div>
+                    <div class="user-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    <path d="M8 14h.01"></path>
+                                    <path d="M12 14h.01"></path>
+                                    <path d="M16 14h.01"></path>
+                                    <path d="M8 18h.01"></path>
+                                    <path d="M12 18h.01"></path>
+                                </svg>
+                                生年月日
+                            </span>
+                            <span class="stat-value"><?= htmlspecialchars($userDob, ENT_QUOTES, 'UTF-8') ?></span>
                         </div>
-                        <div class="user-stat-item">
-                            <div class="stat-icon"></div>
-                            <div class="stat-info">
-                                <span class="stat-label">身長</span>
-                                <span class="stat-value"><?= htmlspecialchars($userHeight, ENT_QUOTES, 'UTF-8') ?> cm</span>
-                            </div>
+                        <div class="stat-item">
+                            <span class="stat-label">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 3v18h18"></path>
+                                    <path d="M18 17V9"></path>
+                                    <path d="M13 17V5"></path>
+                                    <path d="M8 17v-3"></path>
+                                </svg>
+                                身長
+                            </span>
+                            <span class="stat-value"><?= htmlspecialchars($userHeight, ENT_QUOTES, 'UTF-8') ?> cm</span>
                         </div>
-                        <div class="user-stat-item">
-                            <div class="stat-icon"></div>
-                            <div class="stat-info">
-                                <span class="stat-label">体重</span>
-                                <span class="stat-value"><?= htmlspecialchars($userWeight, ENT_QUOTES, 'UTF-8') ?> kg</span>
-                            </div>
+                        <div class="stat-item">
+                            <span class="stat-label">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                    <path d="M2 17l10 5 10-5"></path>
+                                    <path d="M2 12l10 5 10-5"></path>
+                                </svg>
+                                体重
+                            </span>
+                            <span class="stat-value"><?= htmlspecialchars($userWeight, ENT_QUOTES, 'UTF-8') ?> kg</span>
                         </div>
                     </div>
-                    <div class="user-actions">
-                        <a href="pi.php" class="user-action-btn">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                            体組成記録
-                        </a>
-                    </div>
+                    <a href="pi.php" class="user-link-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        体組成記録
+                    </a>
                 </div>
             </div>
-
-            <!-- メッセージ -->
-            <div class="messege">
-                <div class="notification-header-section">
-                    <h2>お知らせ</h2>
+        </div>
+        
+        <!-- 下部セクション -->
+        <div class="home-bottom-row">
+            <!-- お知らせカード -->
+            <div class="notification-card card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        お知らせ
+                    </h2>
                     <div class="notification-filter">
                         <button class="filter-btn active" data-filter="all">すべて</button>
                         <button class="filter-btn" data-filter="group">グループ</button>
                         <button class="filter-btn" data-filter="direct">DM</button>
                     </div>
                 </div>
-                <div class="messege-area">
+                <div class="card-body notification-scroll">
                     <?php if (!empty($chat_notifications)): ?>
                         <?php foreach ($chat_notifications as $index => $notification): ?>
                             <?php 
@@ -136,7 +193,6 @@
                                             <?php endif; ?>
                                             <span class="notification-sender"><?= htmlspecialchars($notification['sender_name'], ENT_QUOTES, 'UTF-8') ?></span>
                                         </div>
-                                        <span class="notification-time"><?= date('m/d H:i', strtotime($notification['created_at'])) ?></span>
                                     </div>
                                     <?php if ($notification['chat_type'] === 'group'): ?>
                                         <div class="notification-group">
@@ -145,6 +201,9 @@
                                             </svg>
                                             <?= htmlspecialchars($notification['group_name'], ENT_QUOTES, 'UTF-8') ?>
                                         </div>
+                                        <div class="notification-group-time"><?= date('m/d H:i', strtotime($notification['created_at'])) ?></div>
+                                    <?php else: ?>
+                                        <div class="notification-dm-time"><?= date('m/d H:i', strtotime($notification['created_at'])) ?></div>
                                     <?php endif; ?>
                                     <div class="notification-message">
                                         <?= htmlspecialchars(mb_substr($notification['message'], 0, 60, 'UTF-8'), ENT_QUOTES, 'UTF-8') ?>
@@ -166,23 +225,24 @@
                     <?php endif; ?>
                 </div>
             </div>
-        </div>
-
-        <!-- カレンダーを右側に配置 -->
-        <div class="calendar">
-            <div class="calendar-header-section">
-                <h2>カレンダー</h2>
-                <div class="calendar-quick-actions">
-                    <button class="calendar-action-btn" onclick="document.querySelector('.fc-today-button').click()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
+            
+            <!-- カレンダーカード -->
+            <div class="calendar-card card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
                         </svg>
-                        今日
-                    </button>
+                        カレンダー
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div id="calendar-area" class="calendar-area"></div>
                 </div>
             </div>
-            <div id="calendar-area" class="calendar-area"></div>
         </div>
     </div>
 </div>
@@ -223,23 +283,98 @@
 <script src="../js/loading.js"></script>
 
 <script src="../js/fullcalendar/dist/index.global.min.js"></script>
-<script src="../js/fullcalendar/packages/interaction/index.global.min.js"></script>
-<script src="../js/fullcalendar/packages/daygrid/index.global.min.js"></script>
 <script src="../js/calendar.js"></script>
 
 <script>
-// 目標の変更ボタン処理
+// 目標管理のJavaScript処理
 document.addEventListener('DOMContentLoaded', function() {
     const editBtn = document.getElementById('edit-goal-btn');
-    const goalForm = document.getElementById('goal-form');
-    const goalDisplay = document.getElementById('goal-display');
+    const saveBtn = document.getElementById('save-goal-btn');
+    const cancelBtn = document.getElementById('cancel-goal-btn');
+    const goalDisplayArea = document.getElementById('goal-display-area');
+    const goalInputArea = document.getElementById('goal-input-area');
+    const goalInput = document.getElementById('goal-input');
+    const goalTextDisplay = document.getElementById('goal-text-display');
+    const goalMessage = document.getElementById('goal-message');
     
+    // 編集ボタンクリック
     if (editBtn) {
         editBtn.addEventListener('click', function() {
-            goalDisplay.classList.add('hidden');
-            goalForm.classList.remove('hidden');
-            document.getElementById('goal').focus();
+            goalDisplayArea.classList.add('hidden');
+            goalInputArea.classList.remove('hidden');
+            cancelBtn.classList.remove('hidden');
+            goalInput.focus();
+            goalMessage.textContent = '';
+            goalMessage.className = 'goal-message';
         });
+    }
+    
+    // キャンセルボタンクリック
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            goalInputArea.classList.add('hidden');
+            goalDisplayArea.classList.remove('hidden');
+            goalMessage.textContent = '';
+            goalMessage.className = 'goal-message';
+        });
+    }
+    
+    // 保存ボタンクリック
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+            const goalValue = goalInput.value.trim();
+            
+            if (!goalValue) {
+                showMessage('目標を入力してください', 'error');
+                return;
+            }
+            
+            // ボタンを無効化
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle></svg> 保存中...';
+            
+            // AJAX送信
+            fetch('../PHP/goalsave.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'goal=' + encodeURIComponent(goalValue)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 成功時の処理
+                    goalTextDisplay.textContent = goalValue;
+                    goalInputArea.classList.add('hidden');
+                    goalDisplayArea.classList.remove('hidden');
+                    showMessage('目標を保存しました！', 'success');
+                    
+                    // 3秒後にメッセージを消す
+                    setTimeout(() => {
+                        goalMessage.textContent = '';
+                        goalMessage.className = 'goal-message';
+                    }, 3000);
+                } else {
+                    showMessage(data.message || '保存に失敗しました', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('エラーが発生しました', 'error');
+            })
+            .finally(() => {
+                // ボタンを有効化
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> 保存';
+            });
+        });
+    }
+    
+    // メッセージ表示関数
+    function showMessage(text, type) {
+        goalMessage.textContent = text;
+        goalMessage.className = 'goal-message ' + type;
     }
     
     // 通知フィルター機能

@@ -17,7 +17,11 @@ $chat_group_id = isset($_POST['chat_group_id']) ? intval($_POST['chat_group_id']
 $recipient_id = $_POST['recipient_id'] ?? null;
 
 // DB接続
-$link = mysqli_connect('localhost', 'root', '', 'sportdata_db');
+$dbHost = getenv('DB_HOST') ?: 'localhost';
+$dbUser = getenv('DB_USER') ?: 'root';
+$dbPass = getenv('DB_PASS') ?: '';
+$dbName = getenv('DB_NAME') ?: 'sportdata_db';
+$link = mysqli_connect($dbHost, $dbUser, $dbPass, $dbName);
 if (!$link) {
     exit(json_encode(['success' => false, 'error' => 'Database connection failed: ' . mysqli_connect_error()]));
 }

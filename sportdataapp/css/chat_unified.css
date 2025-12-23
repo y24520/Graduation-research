@@ -426,6 +426,13 @@ body {
     display: none;
 }
 
+.message-bubble-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    position: relative;
+}
+
 .message-bubble {
     padding: 14px 18px;
     border-radius: 18px;
@@ -435,6 +442,34 @@ body {
     line-height: 1.6;
     font-size: 0.95rem;
     transition: var(--transition);
+}
+
+.message-delete-btn {
+    opacity: 0;
+    background: rgba(239, 68, 68, 0.9);
+    border: none;
+    border-radius: 8px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    color: white;
+    margin-top: 2px;
+    pointer-events: none;
+}
+
+.message-bubble-wrapper.active .message-delete-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.message-delete-btn:hover {
+    background: rgb(239, 68, 68);
+    transform: scale(1.1);
 }
 
 .my-message .message-bubble {
@@ -460,12 +495,39 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* 削除されたメッセージのスタイル */
+.message-bubble.deleted-message {
+    background: #f7fafc !important;
+    color: #a0aec0 !important;
+    border: 2px dashed #cbd5e0 !important;
+    font-style: italic;
+    box-shadow: none !important;
+    pointer-events: none;
+}
+
+.my-message .message-bubble.deleted-message {
+    background: #edf2f7 !important;
+    color: #a0aec0 !important;
+}
+
 .message-time {
     font-size: 0.7rem;
     color: var(--muted);
     padding: 0 8px;
     white-space: nowrap;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.read-status {
+    font-size: 0.65rem;
+    color: var(--primary);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 4px;
 }
 
 /* メッセージ入力エリア */
@@ -808,6 +870,48 @@ body {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
+}
+
+/* 削除確認モーダル専用スタイル */
+.delete-confirm-modal {
+    max-width: 360px;
+    text-align: center;
+}
+
+.delete-confirm-modal .modal-body {
+    padding: 32px 24px;
+}
+
+.delete-message {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.delete-confirm-modal .modal-footer {
+    padding: 16px;
+    gap: 8px;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+/* モーダルオーバーレイがflexで表示される時のスタイル */
+.modal-overlay {
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay[style*="display: flex"] {
+    display: flex !important;
 }
     
     .message-content {

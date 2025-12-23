@@ -131,6 +131,19 @@
     </div>
 </div>
 
+<!-- 削除確認モーダル -->
+<div id="deleteConfirmModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content delete-confirm-modal">
+        <div class="modal-body">
+            <p class="delete-message">このメッセージを削除しますか?</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" onclick="closeDeleteConfirmModal()">キャンセル</button>
+            <button type="button" class="btn btn-danger" onclick="confirmDelete()">削除</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="../js/loading.js"></script>
 <script src="../js/chat_list.js"></script>

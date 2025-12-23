@@ -169,16 +169,9 @@ function refreshMessages() {
         url: `chat_messages.php?${params}`,
         method: 'GET',
         success: function(response) {
-            const currentCount = chatMessages.querySelectorAll('.message-item').length;
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = response;
-            const newCount = tempDiv.querySelectorAll('.message-item').length;
-            
-            if (newCount > currentCount) {
-                chatMessages.innerHTML = response;
-                if (isScrolledToBottom) {
-                    scrollToBottom();
-                }
+            chatMessages.innerHTML = response;
+            if (isScrolledToBottom) {
+                scrollToBottom();
             }
         }
     });
@@ -433,6 +426,8 @@ function markAsRead(type, id) {
                         badge.remove();
                     }
                 }
+                // チャットリストを更新して未読数を再計算
+                updateChatListUnreadCounts();
             } else {
                 console.error('既読状態の更新に失敗:', response.error);
             }
@@ -442,3 +437,101 @@ function markAsRead(type, id) {
         }
     });
 }
+
+// チャットリストの未読数を更新
+function updateChatListUnreadCounts() {
+    // 既にチャットが開かれている場合のみ実行
+    if (!currentChatType || !currentChatId) return;
+    
+    // 現在開いているチャットの未読バッジを確実に削除
+    setTimeout(function() {
+        const chatItem = document.querySelector(`.chat-item[data-type="${currentChatType}"][data-id="${currentChatId}"]`);
+        if (chatItem) {
+            const badge = chatItem.querySelector('.unread-badge');
+            if (badge) {
+                badge.remove();
+            }
+        }
+    }, 500);
+}
+
+// メッセージを削除
+let pendingDeleteMessageId = null;
+
+function deleteMessage(messageId) {
+    pendingDeleteMessageId = messageId;
+    openDeleteConfirmModal();
+}
+
+function openDeleteConfirmModal() {
+    const modal = document.getElementById('deleteConfirmModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeDeleteConfirmModal() {
+    const modal = document.getElementById('deleteConfirmModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    pendingDeleteMessageId = null;
+}
+
+function confirmDelete() {
+    if (!pendingDeleteMessageId) {
+        closeDeleteConfirmModal();
+        return;
+    }
+    
+    $.ajax({
+        url: '../PHP/delete_message_ajax.php',
+        method: 'POST',
+        data: {
+            message_id: pendingDeleteMessageId
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                // メッセージを再読み込み
+                refreshMessages();
+                closeDeleteConfirmModal();
+            } else {
+                alert('削除に失敗しました: ' + (response.error || ''));
+                closeDeleteConfirmModal();
+            }
+        },
+        error: function() {
+            alert('通信エラーが発生しました');
+            closeDeleteConfirmModal();
+        }
+    });
+}
+
+// 削除ボタンを表示/非表示切り替え
+function toggleDeleteButton(element) {
+    const wrapper = element.closest('.message-bubble-wrapper');
+    const allWrappers = document.querySelectorAll('.message-bubble-wrapper');
+    
+    // 他のすべての削除ボタンを非表示
+    allWrappers.forEach(w => {
+        if (w !== wrapper) {
+            w.classList.remove('active');
+        }
+    });
+    
+    // クリックしたメッセージの削除ボタンを切り替え
+    wrapper.classList.toggle('active');
+}
+
+// ドキュメント全体でクリック時に削除ボタンを非表示
+document.addEventListener('click', function(e) {
+    // メッセージバブルまたは削除ボタンのクリックではない場合
+    if (!e.target.closest('.message-bubble') && !e.target.closest('.message-delete-btn')) {
+        document.querySelectorAll('.message-bubble-wrapper').forEach(w => {
+            w.classList.remove('active');
+        });
+    }
+});

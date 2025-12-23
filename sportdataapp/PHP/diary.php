@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_diary'])) {
    日記一覧取得
 ===================== */
 $diaries = [];
-$stmt = mysqli_prepare($link, "SELECT id, diary_date, title, content, created_at, updated_at FROM diary_tbl WHERE group_id=? AND user_id=? ORDER BY diary_date DESC");
+$stmt = mysqli_prepare($link, "SELECT id, diary_date, title, content, tags, created_at, updated_at FROM diary_tbl WHERE group_id=? AND user_id=? ORDER BY diary_date DESC");
 mysqli_stmt_bind_param($stmt, "ss", $group_id, $user_id);
 if (mysqli_stmt_execute($stmt)) {
     $result = mysqli_stmt_get_result($stmt);

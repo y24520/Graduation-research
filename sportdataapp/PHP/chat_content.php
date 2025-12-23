@@ -107,7 +107,7 @@ $messages = [];
 
 if ($chat_type === 'direct' && $recipient_id) {
     $stmt = mysqli_prepare($link, "
-        SELECT c.id, c.user_id, c.message, c.created_at, l.name 
+        SELECT c.id, c.user_id, c.message, c.created_at, c.is_deleted, l.name 
         FROM chat_tbl c 
         LEFT JOIN login_tbl l ON c.group_id = l.group_id AND c.user_id = l.user_id 
         WHERE c.group_id = ? 
@@ -121,7 +121,7 @@ if ($chat_type === 'direct' && $recipient_id) {
     mysqli_stmt_bind_param($stmt, "sssss", $group_id, $user_id, $recipient_id, $recipient_id, $user_id);
 } else if ($chat_type === 'group' && $chat_group_id) {
     $stmt = mysqli_prepare($link, "
-        SELECT c.id, c.user_id, c.message, c.created_at, l.name 
+        SELECT c.id, c.user_id, c.message, c.created_at, c.is_deleted, l.name 
         FROM chat_tbl c 
         LEFT JOIN login_tbl l ON c.group_id = l.group_id AND c.user_id = l.user_id 
         WHERE c.chat_group_id = ? 
@@ -134,6 +134,44 @@ if ($chat_type === 'direct' && $recipient_id) {
 if (isset($stmt) && mysqli_stmt_execute($stmt)) {
     $result = mysqli_stmt_get_result($stmt);
     while ($row = mysqli_fetch_assoc($result)) {
+        // 既読状態をチェック（自分のメッセージのみ）
+        $row['is_read'] = false;
+        if (trim((string)$row['user_id']) === trim((string)$user_id)) {
+            if ($chat_type === 'direct') {
+                // DMの場合、相手が読んだかどうか
+                $read_stmt = mysqli_prepare($link, "
+                    SELECT last_read_message_id 
+                    FROM chat_read_status_tbl 
+                    WHERE user_id = ? 
+                    AND group_id = ? 
+                    AND chat_type = 'direct' 
+                    AND recipient_id = ?
+                    AND last_read_message_id >= ?
+                ");
+                mysqli_stmt_bind_param($read_stmt, "sssi", $recipient_id, $group_id, $user_id, $row['id']);
+                mysqli_stmt_execute($read_stmt);
+                $read_result = mysqli_stmt_get_result($read_stmt);
+                $row['is_read'] = mysqli_num_rows($read_result) > 0;
+                mysqli_stmt_close($read_stmt);
+            } else if ($chat_type === 'group') {
+                // グループの場合、少なくとも1人以上が読んだかどうか
+                $read_stmt = mysqli_prepare($link, "
+                    SELECT COUNT(DISTINCT user_id) as read_count
+                    FROM chat_read_status_tbl 
+                    WHERE group_id = ? 
+                    AND chat_type = 'group' 
+                    AND chat_group_id = ?
+                    AND user_id != ?
+                    AND last_read_message_id >= ?
+                ");
+                mysqli_stmt_bind_param($read_stmt, "sisi", $group_id, $chat_group_id, $user_id, $row['id']);
+                mysqli_stmt_execute($read_stmt);
+                $read_result = mysqli_stmt_get_result($read_stmt);
+                $read_row = mysqli_fetch_assoc($read_result);
+                $row['is_read'] = ($read_row['read_count'] ?? 0) > 0;
+                mysqli_stmt_close($read_stmt);
+            }
+        }
         $messages[] = $row;
     }
     mysqli_stmt_close($stmt);
@@ -176,10 +214,31 @@ if (isset($stmt) && mysqli_stmt_execute($stmt)) {
                 <?php if (!$isMyMessage): ?>
                 <div class="message-sender"><?= htmlspecialchars($msg['name'] ?? '不明', ENT_QUOTES, 'UTF-8') ?></div>
                 <?php endif; ?>
-                <div class="message-bubble">
-                    <?= nl2br(htmlspecialchars($msg['message'], ENT_QUOTES, 'UTF-8')) ?>
+                <div class="message-bubble-wrapper">
+                    <?php if (!empty($msg['is_deleted']) && $msg['is_deleted'] == 1): ?>
+                    <div class="message-bubble deleted-message">
+                        メッセージは取り消されました
+                    </div>
+                    <?php else: ?>
+                    <div class="message-bubble" <?= $isMyMessage ? 'onclick="toggleDeleteButton(this)"' : '' ?>>
+                        <?= nl2br(htmlspecialchars($msg['message'], ENT_QUOTES, 'UTF-8')) ?>
+                    </div>
+                    <?php if ($isMyMessage): ?>
+                    <button class="message-delete-btn" onclick="event.stopPropagation(); deleteMessage(<?= $msg['id'] ?>)" title="削除">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                    </button>
+                    <?php endif; ?>
+                    <?php endif; ?>
                 </div>
-                <div class="message-time"><?= date('H:i', strtotime($msg['created_at'])) ?></div>
+                <div class="message-time">
+                    <?= date('H:i', strtotime($msg['created_at'])) ?>
+                    <?php if ($isMyMessage && isset($msg['is_read']) && $msg['is_read']): ?>
+                    <span class="read-status">既読</span>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
         <?php endforeach; ?>

@@ -22,7 +22,14 @@ $group_id = $_SESSION['group_id'];
 $corrent_goal = "";
 
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
-$goal = $_POST['goal'];
+header('Content-Type: application/json');
+
+$goal = $_POST['goal'] ?? '';
+
+if (empty(trim($goal))) {
+    echo json_encode(['success' => false, 'message' => '目標を入力してください']);
+    exit();
+}
 
 $stmt2 = mysqli_prepare($link, "SELECT * FROM goal_tbl WHERE user_id = ? AND group_id = ?");
 mysqli_stmt_bind_param($stmt2, "ss", $user_id , $group_id);
@@ -41,14 +48,14 @@ if(mysqli_num_rows($result2) > 0){
     mysqli_stmt_close($stmt3);
 }
 
-if($success){
-    header('Location: home.php');
-    exit();
-}else{
-    echo "エラー" . mysqli_error($link);
-}
-
 mysqli_close($link);
+
+if($success){
+    echo json_encode(['success' => true, 'message' => '目標を保存しました']);
+}else{
+    echo json_encode(['success' => false, 'message' => '保存に失敗しました']);
+}
+exit();
 }
 
 ?>
