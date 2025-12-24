@@ -14,7 +14,16 @@
 <body>
 <?php if ($showLoader): ?>
     <div class="loader">
-        <div class="spinner"></div>
+        <div class="spinner">
+            <div class="progress-bar-container">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
         <p class="txt">こんにちは！<?php echo htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>さん</p>
     </div>
 <?php endif; ?>
@@ -134,7 +143,7 @@
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                         </svg>
-                        体組成記録
+                        身体情報
                     </a>
                 </div>
             </div>

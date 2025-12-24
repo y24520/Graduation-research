@@ -15,7 +15,16 @@
 <body>
 <?php if ($showLoader): ?>
     <div class="loader">
-        <div class="spinner"></div>
+        <div class="spinner">
+            <div class="progress-bar-container">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
         <p class="txt">読み込み中...</p>
     </div>
 <?php endif; ?>

@@ -83,14 +83,41 @@ if ($chat_type === 'group') {
 ===================== */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'])) {
     $message = trim($_POST['message']);
+    $image_path = null;
+    $image_name = null;
     
-    if (!empty($message)) {
+    // 画像アップロード処理
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $upload_dir = __DIR__ . '/../uploads/chat_images/';
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        $max_size = 5 * 1024 * 1024; // 5MB
+        
+        $file_type = $_FILES['image']['type'];
+        $file_size = $_FILES['image']['size'];
+        $file_tmp = $_FILES['image']['tmp_name'];
+        $original_name = $_FILES['image']['name'];
+        
+        // バリデーション
+        if (in_array($file_type, $allowed_types) && $file_size <= $max_size) {
+            $extension = pathinfo($original_name, PATHINFO_EXTENSION);
+            $new_filename = uniqid('chat_') . '_' . time() . '.' . $extension;
+            $target_path = $upload_dir . $new_filename;
+            
+            if (move_uploaded_file($file_tmp, $target_path)) {
+                $image_path = '../uploads/chat_images/' . $new_filename;
+                $image_name = $original_name;
+            }
+        }
+    }
+    
+    // メッセージまたは画像が存在する場合のみ送信
+    if (!empty($message) || !empty($image_path)) {
         if ($chat_type === 'direct' && $recipient_id) {
-            $stmt = mysqli_prepare($link, "INSERT INTO chat_tbl (group_id, user_id, chat_type, recipient_id, message) VALUES (?, ?, 'direct', ?, ?)");
-            mysqli_stmt_bind_param($stmt, "ssss", $group_id, $user_id, $recipient_id, $message);
+            $stmt = mysqli_prepare($link, "INSERT INTO chat_tbl (group_id, user_id, chat_type, recipient_id, message, image_path, image_name) VALUES (?, ?, 'direct', ?, ?, ?, ?)");
+            mysqli_stmt_bind_param($stmt, "ssssss", $group_id, $user_id, $recipient_id, $message, $image_path, $image_name);
         } else if ($chat_type === 'group' && $chat_group_id) {
-            $stmt = mysqli_prepare($link, "INSERT INTO chat_tbl (group_id, user_id, chat_type, chat_group_id, message) VALUES (?, ?, 'group', ?, ?)");
-            mysqli_stmt_bind_param($stmt, "ssis", $group_id, $user_id, $chat_group_id, $message);
+            $stmt = mysqli_prepare($link, "INSERT INTO chat_tbl (group_id, user_id, chat_type, chat_group_id, message, image_path, image_name) VALUES (?, ?, 'group', ?, ?, ?, ?)");
+            mysqli_stmt_bind_param($stmt, "ssisss", $group_id, $user_id, $chat_group_id, $message, $image_path, $image_name);
         }
         
         if (isset($stmt)) {

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登録情報編集 - スポーツデータ可視化分析アプリ</title>
+    <link rel="stylesheet" href="../css/profile_edit.css">
+    <link rel="stylesheet" href="../css/site.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+<?php require_once __DIR__ . '/../PHP/header.php'; ?>
+
+<div class="profile-edit-container">
+    <div class="profile-edit-header">
+        <h1><i class="fas fa-user-edit"></i> 登録情報編集</h1>
+        <p class="subtitle">プロフィール情報とパスワードの変更</p>
+    </div>
+
+    <?php if($success): ?>
+    <div class="success-box">
+        <i class="fas fa-check-circle"></i>
+        <span>登録情報を更新しました</span>
+    </div>
+    <?php endif; ?>
+
+    <?php if(!empty($errors)): ?>
+    <div class="error-box">
+        <i class="fas fa-exclamation-circle"></i>
+        <div class="error-content">
+            <h4>エラーが発生しました</h4>
+            <ul>
+                <?php foreach($errors as $error): ?>
+                    <li><?= htmlspecialchars($error) ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <form action="" method="post" id="profileEditForm" class="profile-form">
+        <div class="form-sections">
+            <!-- 基本情報セクション -->
+            <div class="form-section">
+                <h3><i class="fas fa-id-card"></i> 基本情報</h3>
+                
+                <div class="info-display">
+                    <div class="info-item">
+                        <label>団体ID</label>
+                        <p><?= htmlspecialchars($user_data['group_id']) ?></p>
+                    </div>
+                    <div class="info-item">
+                        <label>ユーザーID</label>
+                        <p><?= htmlspecialchars($user_data['user_id']) ?></p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">
+                        <i class="fas fa-signature"></i> 氏名
+                        <span class="required">*</span>
+                    </label>
+                    <input type="text" 
+                           id="name" 
+                           name="name" 
+                           value="<?= htmlspecialchars($user_data['name']) ?>"
+                           required>
+                    <span class="field-error" id="name_error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="dob">
+                        <i class="fas fa-calendar-alt"></i> 生年月日
+                        <span class="required">*</span>
+                    </label>
+                    <input type="date" 
+                           id="dob" 
+                           name="dob" 
+                           value="<?= htmlspecialchars($user_data['dob']) ?>"
+                           required>
+                    <span class="field-error" id="dob_error"></span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="height">
+                            <i class="fas fa-ruler-vertical"></i> 身長 (cm)
+                            <span class="required">*</span>
+                        </label>
+                        <input type="number" 
+                               id="height" 
+                               name="height" 
+                               value="<?= htmlspecialchars($user_data['height']) ?>"
+                               min="100" 
+                               max="250"
+                               step="0.1"
+                               required>
+                        <span class="field-error" id="height_error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="weight">
+                            <i class="fas fa-weight"></i> 体重 (kg)
+                            <span class="required">*</span>
+                        </label>
+                        <input type="number" 
+                               id="weight" 
+                               name="weight" 
+                               value="<?= htmlspecialchars($user_data['weight']) ?>"
+                               min="30" 
+                               max="200"
+                               step="0.1"
+                               required>
+                        <span class="field-error" id="weight_error"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="position">
+                        <i class="fas fa-medal"></i> ポジション / 役職
+                        <span class="required">*</span>
+                    </label>
+                    <input type="text" 
+                           id="position" 
+                           name="position" 
+                           value="<?= htmlspecialchars($user_data['position']) ?>"
+                           required>
+                    <span class="field-error" id="position_error"></span>
+                </div>
+            </div>
+
+            <!-- パスワード変更セクション -->
+            <div class="form-section">
+                <h3><i class="fas fa-key"></i> パスワード変更</h3>
+                <p class="section-note">パスワードを変更する場合のみ入力してください</p>
+
+                <div class="form-group">
+                    <label for="current_password">
+                        <i class="fas fa-lock"></i> 現在のパスワード
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password" 
+                               id="current_password" 
+                               name="current_password" 
+                               placeholder="現在のパスワードを入力">
+                        <button type="button" class="toggle-password" onclick="togglePassword('current_password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span class="field-error" id="current_password_error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="new_password">
+                        <i class="fas fa-key"></i> 新しいパスワード
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password" 
+                               id="new_password" 
+                               name="new_password" 
+                               placeholder="新しいパスワード（6文字以上）"
+                               minlength="6">
+                        <button type="button" class="toggle-password" onclick="togglePassword('new_password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength" id="password-strength" style="display: none;">
+                        <div class="strength-bar"></div>
+                        <span class="strength-text"></span>
+                    </div>
+                    <span class="field-error" id="new_password_error"></span>
+                    <small class="field-hint">6文字以上の英数字記号</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="new_password_confirm">
+                        <i class="fas fa-check-double"></i> 新しいパスワード確認
+                    </label>
+                    <div class="password-wrapper">
+                        <input type="password" 
+                               id="new_password_confirm" 
+                               name="new_password_confirm" 
+                               placeholder="新しいパスワードを再入力">
+                        <button type="button" class="toggle-password" onclick="togglePassword('new_password_confirm')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span class="field-error" id="new_password_confirm_error"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- アクションボタン -->
+        <div class="form-actions">
+            <button type="submit" name="update" class="btn-submit">
+                <i class="fas fa-save"></i> 変更を保存
+            </button>
+            <a href="home.php" class="btn-cancel">
+                <i class="fas fa-times"></i> キャンセル
+            </a>
+        </div>
+    </form>
+</div>
+
+<script src="../js/meny.js"></script>
+<script>
+// パスワード表示切替
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const button = field.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// パスワード強度チェック
+document.getElementById('new_password').addEventListener('input', function() {
+    const password = this.value;
+    const strengthBar = document.querySelector('.strength-bar');
+    const strengthText = document.querySelector('.strength-text');
+    const strengthContainer = document.getElementById('password-strength');
+    
+    if (password.length === 0) {
+        strengthContainer.style.display = 'none';
+        return;
+    }
+    
+    strengthContainer.style.display = 'block';
+    
+    let strength = 0;
+    if (password.length >= 6) strength++;
+    if (password.length >= 10) strength++;
+    if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+    if (/\d/.test(password)) strength++;
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+    
+    const strengthLevels = [
+        { width: '20%', color: '#e53e3e', text: '非常に弱い' },
+        { width: '40%', color: '#ed8936', text: '弱い' },
+        { width: '60%', color: '#ecc94b', text: '普通' },
+        { width: '80%', color: '#48bb78', text: '強い' },
+        { width: '100%', color: '#38a169', text: '非常に強い' }
+    ];
+    
+    const level = Math.min(strength, 4);
+    strengthBar.style.width = strengthLevels[level].width;
+    strengthBar.style.backgroundColor = strengthLevels[level].color;
+    strengthText.textContent = strengthLevels[level].text;
+    strengthText.style.color = strengthLevels[level].color;
+});
+
+// パスワード確認チェック
+document.getElementById('new_password_confirm').addEventListener('input', function() {
+    const password = document.getElementById('new_password').value;
+    const confirmPassword = this.value;
+    const errorSpan = document.getElementById('new_password_confirm_error');
+    
+    if (confirmPassword && password !== confirmPassword) {
+        errorSpan.textContent = 'パスワードが一致しません';
+        this.classList.add('error');
+    } else {
+        errorSpan.textContent = '';
+        this.classList.remove('error');
+    }
+});
+
+// フォーム送信
+document.getElementById('profileEditForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitButton = this.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+    
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 更新中...';
+    
+    fetch('profile_edit.php', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccessMessage(data.message);
+            // パスワードフィールドをクリア
+            document.getElementById('current_password').value = '';
+            document.getElementById('new_password').value = '';
+            document.getElementById('new_password_confirm').value = '';
+            document.getElementById('password-strength').style.display = 'none';
+        } else {
+            showErrors(data.errors);
+        }
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showErrors(['通信エラーが発生しました']);
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+    });
+});
+
+function showSuccessMessage(message) {
+    const existingBox = document.querySelector('.success-box');
+    if (existingBox) existingBox.remove();
+    
+    const successBox = document.createElement('div');
+    successBox.className = 'success-box';
+    successBox.innerHTML = `
+        <i class="fas fa-check-circle"></i>
+        <span>${message}</span>
+    `;
+    
+    const container = document.querySelector('.profile-edit-container');
+    container.insertBefore(successBox, container.querySelector('.profile-form'));
+    successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    setTimeout(() => {
+        successBox.remove();
+    }, 5000);
+}
+
+function showErrors(errors) {
+    const existingBox = document.querySelector('.error-box');
+    if (existingBox) existingBox.remove();
+    
+    const errorBox = document.createElement('div');
+    errorBox.className = 'error-box';
+    errorBox.innerHTML = `
+        <i class="fas fa-exclamation-circle"></i>
+        <div class="error-content">
+            <h4>エラーが発生しました</h4>
+            <ul>
+                ${errors.map(error => `<li>${error}</li>`).join('')}
+            </ul>
+        </div>
+    `;
+    
+    const container = document.querySelector('.profile-edit-container');
+    container.insertBefore(errorBox, container.querySelector('.profile-form'));
+    errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// 入力フィールドのエラークリア
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('focus', function() {
+        this.classList.remove('error');
+        const errorSpan = document.getElementById(this.id + '_error');
+        if (errorSpan) {
+            errorSpan.textContent = '';
+        }
+    });
+});
+</script>
+<script src="../js/meny.js"></script>
+
+</body>
+</html>

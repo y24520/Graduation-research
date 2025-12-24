@@ -11,7 +11,7 @@ if (!isset($NAV_BASE)) {
 <!-- 共通ナビ用スタイルを外部ファイルで読み込み -->
 <?php
 // HTMLテンプレートのCSS読み込みパスから判定
-$css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false) ? '../../css/' : '../css/';
+$css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false || strpos($_SERVER['REQUEST_URI'], '/basketball/') !== false) ? '../../css/' : '../css/';
 ?>
 <link rel="stylesheet" href="<?= $css_depth ?>nav.css">
 <!-- 共通ナビ -->
@@ -30,7 +30,15 @@ $css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false) ? '../../css/
             </svg>
         </button>
         <div class="settings-menu" id="settingsMenu">
-            <a href="<?= htmlspecialchars($NAV_BASE . '/logout.php', ENT_QUOTES, 'UTF-8') ?>" onclick="return confirm('ログアウトしますか？')">
+            <a href="<?= htmlspecialchars($NAV_BASE . '/profile_edit.php', ENT_QUOTES, 'UTF-8') ?>">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                登録情報編集
+            </a>
+            <div class="settings-divider"></div>
+            <a href="<?= htmlspecialchars($NAV_BASE . '/logout.php', ENT_QUOTES, 'UTF-8') ?>" onclick="return confirm('ログアウトしますか？')" class="logout-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
@@ -61,7 +69,15 @@ $css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false) ? '../../css/
                 </ul>
             </li>
 
-            <li><button><a href="#">バスケ</a></button></li>
+            <li class="has-sub <?= (strpos($_SERVER['PHP_SELF'], 'basketball') !== false) ? 'active' : '' ?>">
+                <button>バスケ</button>
+                <ul class="sub-menu">
+                    <li><a href="<?= htmlspecialchars($NAV_BASE . '/basketball/index.php', ENT_QUOTES, 'UTF-8') ?>">試合設定</a></li>
+                    <li><a href="<?= htmlspecialchars($NAV_BASE . '/basketball/game.php', ENT_QUOTES, 'UTF-8') ?>">試合記録</a></li>
+                    <li><a href="<?= htmlspecialchars($NAV_BASE . '/basketball/analysis.php', ENT_QUOTES, 'UTF-8') ?>">分析</a></li>
+                    <li><a href="<?= htmlspecialchars($NAV_BASE . '/basketball/final.php', ENT_QUOTES, 'UTF-8') ?>">最終結果</a></li>
+                </ul>
+            </li>
         </ul>
     </nav>
     <div class="app-title">Sports Analytics App</div>

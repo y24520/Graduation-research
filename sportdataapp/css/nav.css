@@ -150,15 +150,33 @@
     text-decoration: none;
     font-size: 0.95rem;
     transition: background 0.2s ease;
+    border-radius: 4px;
 }
 
 .settings-menu a:hover {
-    background: rgba(229, 62, 62, 0.08);
-    color: #e53e3e;
+    background: rgba(49, 130, 206, 0.08);
+    color: #3182ce;
 }
 
 .settings-menu a svg {
     flex-shrink: 0;
+}
+
+/* 区切り線 */
+.settings-divider {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+    margin: 8px 12px;
+}
+
+/* ログアウトリンク */
+.settings-menu a.logout-link {
+    color: #e53e3e;
+}
+
+.settings-menu a.logout-link:hover {
+    background: rgba(229, 62, 62, 0.08);
+    color: #c53030;
 }
 
 /* =====================

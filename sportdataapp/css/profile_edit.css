@@ -17,7 +17,6 @@
   --border-focus: #90cdf4;
   --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
-  --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
   --radius: 12px;
   --radius-sm: 8px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -34,14 +33,16 @@ body {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
   color: var(--text);
-  padding: 20px;
+  padding: 0;
   line-height: 1.6;
 }
 
 /* コンテナ */
-.registration-container {
-  max-width: 1100px;
+.profile-edit-container {
+  max-width: 1000px;
   margin: 0 auto;
+  padding: 20px;
+  margin-top: 30px;
   animation: fadeIn 0.5s ease-in;
 }
 
@@ -57,12 +58,12 @@ body {
 }
 
 /* ヘッダー */
-.registration-header {
+.profile-edit-header {
   text-align: center;
   margin-bottom: 40px;
 }
 
-.registration-header h1 {
+.profile-edit-header h1 {
   font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 10px;
@@ -73,7 +74,7 @@ body {
   display: inline-block;
 }
 
-.registration-header h1 i {
+.profile-edit-header h1 i {
   background: linear-gradient(135deg, var(--primary) 0%, #5a67d8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -87,24 +88,47 @@ body {
   margin-top: 8px;
 }
 
-/* エラーボックス */
-.error-box {
-  background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
-  border-left: 4px solid var(--danger);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin-bottom: 30px;
+/* メッセージボックス */
+.success-box {
+  background: linear-gradient(135deg, #c6f6d5 0%, #e6fffa 100%);
+  border-left: 4px solid var(--success);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   box-shadow: var(--shadow);
+  animation: slideDown 0.4s ease-out;
+}
+
+.success-box i {
+  color: var(--success);
+  font-size: 1.4rem;
+}
+
+.success-box span {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.error-box {
+  background: linear-gradient(135deg, var(--danger-light) 0%, #fff5f5 100%);
+  border-left: 4px solid var(--danger);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  margin-bottom: 25px;
   display: flex;
   align-items: flex-start;
   gap: 15px;
-  animation: slideDown 0.3s ease-out;
+  box-shadow: var(--shadow);
+  animation: slideDown 0.4s ease-out;
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-15px);
   }
   to {
     opacity: 1;
@@ -121,17 +145,17 @@ body {
 .error-content h4 {
   color: var(--danger);
   margin-bottom: 8px;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 }
 
 .error-content ul {
   list-style: none;
-  padding-left: 0;
+  padding: 0;
 }
 
 .error-content li {
   color: var(--text);
-  padding: 4px 0;
+  padding: 3px 0;
   padding-left: 20px;
   position: relative;
 }
@@ -145,27 +169,25 @@ body {
 }
 
 /* フォーム */
-.reg-form {
+.profile-form {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border: 2px solid var(--border);
   border-radius: var(--radius);
   padding: 50px;
   box-shadow: var(--shadow-lg);
-  transition: var(--transition);
 }
 
-.inner-reg-form {
+.form-sections {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 40px;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
   margin-bottom: 40px;
 }
 
-/* フォームセクション */
 .form-section h3 {
   font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   padding-bottom: 15px;
   border-bottom: 3px solid var(--primary);
   color: var(--text);
@@ -177,6 +199,45 @@ body {
 .form-section h3 i {
   color: var(--primary);
   font-size: 1.3rem;
+}
+
+.section-note {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: rgba(49, 130, 206, 0.05);
+  border-radius: var(--radius-sm);
+}
+
+/* 情報表示 */
+.info-display {
+  background: rgba(49, 130, 206, 0.05);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.info-item {
+  margin-bottom: 15px;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-item label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-bottom: 5px;
+}
+
+.info-item p {
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 /* フォームグループ */
@@ -284,7 +345,6 @@ input.error:focus {
 /* パスワード強度 */
 .password-strength {
   margin-top: 8px;
-  display: none;
 }
 
 .strength-bar {
@@ -320,29 +380,26 @@ input.error:focus {
   min-height: 18px;
 }
 
-/* フォーム行（身長・体重） */
+/* フォーム行 */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
-/* フォームアクション */
+/* アクションボタン */
 .form-actions {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 15px;
   margin-top: 40px;
   padding-top: 30px;
   border-top: 2px solid var(--border);
 }
 
-/* 送信ボタン */
 .btn-submit {
-  width: 100%;
-  max-width: 400px;
-  padding: 16px 32px;
+  padding: 16px 40px;
   border: none;
   border-radius: var(--radius);
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
@@ -352,23 +409,9 @@ input.error:focus {
   cursor: pointer;
   box-shadow: 0 4px 15px rgba(49, 130, 206, 0.3);
   transition: var(--transition);
-  position: relative;
-  overflow: hidden;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 10px;
-}
-
-.btn-submit::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-  transition: left 0.5s ease;
 }
 
 .btn-submit:hover {
@@ -376,184 +419,64 @@ input.error:focus {
   box-shadow: 0 8px 25px rgba(49, 130, 206, 0.4);
 }
 
-.btn-submit:hover::before {
-  left: 100%;
-}
-
 .btn-submit:active {
   transform: translateY(0);
 }
 
-/* セカンダリボタン */
-.btn-secondary {
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-cancel {
+  padding: 16px 40px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: white;
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--transition);
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
+  gap: 10px;
+}
+
+.btn-cancel:hover {
+  background: var(--bg);
+  border-color: var(--primary);
   color: var(--primary);
-  text-decoration: none;
-  font-weight: 600;
-  border-radius: var(--radius-sm);
-  transition: var(--transition);
-}
-
-.btn-secondary:hover {
-  background: rgba(49, 130, 206, 0.1);
-  transform: translateX(-4px);
-}
-
-/* 成功モーダル */
-.success-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(5px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.success-modal.show {
-  opacity: 1;
-}
-
-.success-modal-content {
-  background: white;
-  border-radius: var(--radius);
-  padding: 50px;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  max-width: 500px;
-  transform: scale(0.9);
-  transition: transform 0.3s ease;
-}
-
-.success-modal.show .success-modal-content {
-  transform: scale(1);
-}
-
-.success-icon {
-  width: 100px;
-  height: 100px;
-  margin: 0 auto 20px;
-  background: linear-gradient(135deg, var(--success) 0%, #48bb78 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: successPulse 0.6s ease-out;
-}
-
-@keyframes successPulse {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.success-icon i {
-  color: white;
-  font-size: 3.5rem;
-}
-
-.success-modal-content h3 {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--text);
-  margin-bottom: 15px;
-}
-
-.success-modal-content p {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-  margin-bottom: 30px;
-}
-
-.success-animation {
-  margin-top: 20px;
-}
-
-.checkmark-circle {
-  width: 80px;
-  height: 80px;
-  position: relative;
-  margin: 0 auto;
-  border-radius: 50%;
-  border: 3px solid var(--success);
-  animation: scaleIn 0.4s ease-out 0.3s both;
-}
-
-@keyframes scaleIn {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.checkmark {
-  width: 30px;
-  height: 50px;
-  border-right: 4px solid var(--success);
-  border-bottom: 4px solid var(--success);
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -60%) rotate(45deg) scale(0);
-  animation: checkmarkDraw 0.4s ease-out 0.5s both;
-}
-
-@keyframes checkmarkDraw {
-  0% {
-    transform: translate(-50%, -60%) rotate(45deg) scale(0);
-  }
-  100% {
-    transform: translate(-50%, -60%) rotate(45deg) scale(1);
-  }
+  transform: translateY(-2px);
 }
 
 /* レスポンシブデザイン */
 @media (max-width: 900px) {
-  .inner-reg-form {
+  .form-sections {
     grid-template-columns: 1fr;
     gap: 30px;
   }
   
-  .reg-form {
+  .profile-form {
     padding: 30px;
   }
   
-  .registration-header h1 {
+  .profile-edit-header h1 {
     font-size: 2rem;
   }
 }
 
 @media (max-width: 600px) {
   body {
-    padding: 10px;
+    padding: 80px 10px 20px;
   }
   
-  .reg-form {
+  .profile-form {
     padding: 20px;
   }
   
-  .registration-header h1 {
+  .profile-edit-header h1 {
     font-size: 1.75rem;
   }
   
@@ -562,8 +485,14 @@ input.error:focus {
     gap: 0;
   }
   
-  .btn-submit {
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .btn-submit,
+  .btn-cancel {
     width: 100%;
+    justify-content: center;
   }
 }
 

@@ -15,7 +15,16 @@
 <body>
 <?php if ($showLoader): ?>
     <div class="loader">
-        <div class="spinner"></div>
+        <div class="spinner">
+            <div class="progress-bar-container">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
         <p class="txt">読み込み中...</p>
     </div>
 <?php endif; ?>
@@ -76,7 +85,16 @@
                     <?php endif; ?>
                     
                     <div class="message-bubble">
+                        <?php if (!empty($msg['image_path'])): ?>
+                        <div class="message-image">
+                            <img src="<?= htmlspecialchars($msg['image_path'], ENT_QUOTES, 'UTF-8') ?>" 
+                                 alt="<?= htmlspecialchars($msg['image_name'] ?? '画像', ENT_QUOTES, 'UTF-8') ?>"
+                                 onclick="openImageModal(this.src)">
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($msg['message'])): ?>
                         <?= nl2br(htmlspecialchars($msg['message'], ENT_QUOTES, 'UTF-8')) ?>
+                        <?php endif; ?>
                     </div>
                     
                     <div class="message-time">
@@ -97,22 +115,39 @@
     
     <!-- メッセージ入力フォーム -->
     <div class="chat-input-area">
-        <form method="post" class="chat-form" id="chatForm" action="">
+        <form method="post" class="chat-form" id="chatForm" action="" enctype="multipart/form-data">
             <input type="hidden" name="send_message" value="1">
             <div class="input-wrapper">
+                <label for="imageInput" class="btn-attach" title="画像を添付">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                </label>
+                <input type="file" id="imageInput" name="image" accept="image/*" style="display: none;">
+                <div id="imagePreview" class="image-preview"></div>
                 <textarea 
                     id="message" 
                     name="message" 
                     placeholder="メッセージを入力... (Shift+Enterで改行、Enterで送信)" 
                     rows="1"
-                    required
                 ></textarea>
                 <button type="submit" class="btn-send" id="sendBtn">
-                    送信
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
                 </button>
             </div>
         </form>
     </div>
+</div>
+
+<!-- 画像モーダル -->
+<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+    <span class="image-modal-close">&times;</span>
+    <img class="image-modal-content" id="modalImage">
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

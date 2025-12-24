@@ -28,7 +28,7 @@ $messages = [];
 
 if ($chat_type === 'direct' && $recipient_id) {
     $stmt = mysqli_prepare($link, "
-        SELECT c.id, c.user_id, c.message, c.created_at, c.is_deleted, l.name 
+        SELECT c.id, c.user_id, c.message, c.image_path, c.image_name, c.created_at, c.is_deleted, l.name 
         FROM chat_tbl c 
         LEFT JOIN login_tbl l ON c.group_id = l.group_id AND c.user_id = l.user_id 
         WHERE c.group_id = ? 
@@ -42,7 +42,7 @@ if ($chat_type === 'direct' && $recipient_id) {
     mysqli_stmt_bind_param($stmt, "sssss", $group_id, $user_id, $recipient_id, $recipient_id, $user_id);
 } else if ($chat_type === 'group' && $chat_group_id) {
     $stmt = mysqli_prepare($link, "
-        SELECT c.id, c.user_id, c.message, c.created_at, c.is_deleted, l.name 
+        SELECT c.id, c.user_id, c.message, c.image_path, c.image_name, c.created_at, c.is_deleted, l.name 
         FROM chat_tbl c 
         LEFT JOIN login_tbl l ON c.group_id = l.group_id AND c.user_id = l.user_id 
         WHERE c.chat_group_id = ? 
@@ -118,7 +118,16 @@ $isMyMessage = trim((string)$msg['user_id']) === trim((string)$user_id);
             </div>
             <?php else: ?>
             <div class="message-bubble" <?= $isMyMessage ? 'onclick="toggleDeleteButton(this)"' : '' ?>>
+                <?php if (!empty($msg['image_path'])): ?>
+                <div class="message-image">
+                    <img src="<?= htmlspecialchars($msg['image_path'], ENT_QUOTES, 'UTF-8') ?>" 
+                         alt="<?= htmlspecialchars($msg['image_name'] ?? '画像', ENT_QUOTES, 'UTF-8') ?>"
+                         onclick="openImageModal(this.src)">
+                </div>
+                <?php endif; ?>
+                <?php if (!empty($msg['message'])): ?>
                 <?= nl2br(htmlspecialchars($msg['message'], ENT_QUOTES, 'UTF-8')) ?>
+                <?php endif; ?>
             </div>
             <?php if ($isMyMessage): ?>
             <button class="message-delete-btn" onclick="event.stopPropagation(); deleteMessage(<?= $msg['id'] ?>)" title="削除">

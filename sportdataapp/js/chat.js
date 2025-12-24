@@ -5,10 +5,36 @@ document.addEventListener('DOMContentLoaded', function() {
     const messageInput = document.getElementById('message');
     const chatForm = document.getElementById('chatForm');
     const sendBtn = document.getElementById('sendBtn');
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
     
     // 最新メッセージまでスクロール
     if (chatMessages) {
         scrollToBottom();
+    }
+    
+    // 画像選択時のプレビュー
+    if (imageInput && imagePreview) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('画像サイズは5MB以下にしてください');
+                    imageInput.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.innerHTML = `
+                        <img src="${e.target.result}" alt="プレビュー">
+                        <button type="button" class="image-preview-remove" onclick="removeImagePreview()">×</button>
+                    `;
+                    imagePreview.classList.add('active');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     }
     
     // テキストエリアの自動リサイズ
@@ -22,7 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
         messageInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                if (this.value.trim() !== '') {
+                const hasImage = imageInput && imageInput.files.length > 0;
+                if (this.value.trim() !== '' || hasImage) {
                     chatForm.submit();
                 }
             }
@@ -31,21 +58,25 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 送信ボタンの状態管理
     if (messageInput && sendBtn) {
-        messageInput.addEventListener('input', function() {
-            if (this.value.trim() === '') {
-                sendBtn.disabled = true;
-                sendBtn.style.opacity = '0.5';
-            } else {
+        function updateSendButton() {
+            const hasText = messageInput.value.trim() !== '';
+            const hasImage = imageInput && imageInput.files.length > 0;
+            if (hasText || hasImage) {
                 sendBtn.disabled = false;
                 sendBtn.style.opacity = '1';
+            } else {
+                sendBtn.disabled = true;
+                sendBtn.style.opacity = '0.5';
             }
-        });
+        }
+        
+        messageInput.addEventListener('input', updateSendButton);
+        if (imageInput) {
+            imageInput.addEventListener('change', updateSendButton);
+        }
         
         // 初期状態
-        if (messageInput.value.trim() === '') {
-            sendBtn.disabled = true;
-            sendBtn.style.opacity = '0.5';
-        }
+        updateSendButton();
     }
     
     // 定期的にメッセージを更新（10秒ごと）
@@ -92,6 +123,44 @@ if (document.getElementById('chatForm')) {
             sendBtn.innerHTML = '<span class="send-icon">⏳</span>送信中...';
         }
     });
+}
+
+// 画像プレビュー削除
+function removeImagePreview() {
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+    if (imageInput) imageInput.value = '';
+    if (imagePreview) {
+        imagePreview.innerHTML = '';
+        imagePreview.classList.remove('active');
+    }
+    // 送信ボタン状態を更新
+    const messageInput = document.getElementById('message');
+    const sendBtn = document.getElementById('sendBtn');
+    if (messageInput && sendBtn) {
+        if (messageInput.value.trim() === '') {
+            sendBtn.disabled = true;
+            sendBtn.style.opacity = '0.5';
+        }
+    }
+}
+
+// 画像モーダル表示
+function openImageModal(src) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    if (modal && modalImg) {
+        modal.classList.add('active');
+        modalImg.src = src;
+    }
+}
+
+// 画像モーダル閉じる
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
 }
 
 // タイムスタンプの相対時間表示（オプション）
