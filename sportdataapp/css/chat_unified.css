@@ -243,7 +243,6 @@ body {
     justify-content: center;
     text-align: center;
     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
-    animation: pulseUnread 2s ease-in-out infinite;
 }
 
 @keyframes pulseUnread {

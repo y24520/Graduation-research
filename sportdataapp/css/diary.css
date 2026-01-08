@@ -26,6 +26,8 @@ body {
     background: var(--bg);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
     color: var(--text);
+    margin: 0;
+    padding: 0;
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
 }
@@ -176,10 +178,28 @@ body::-webkit-scrollbar-thumb {
 
 /* 日記グリッド */
 .diary-grid {
+    display: block;
+    margin-bottom: 40px;
+}
+
+/* 月ごとの区切り */
+.diary-month {
+    margin-bottom: 32px;
+}
+
+.diary-month-title {
+    margin: 0 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.diary-month-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 24px;
-    margin-bottom: 40px;
 }
 
 .diary-card {
@@ -569,7 +589,7 @@ body::-webkit-scrollbar-thumb {
         justify-content: center;
     }
 
-    .diary-grid {
+    .diary-month-grid {
         grid-template-columns: 1fr;
         gap: 16px;
     }

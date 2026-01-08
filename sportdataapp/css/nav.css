@@ -30,7 +30,7 @@
     box-shadow: var(--nav-shadow);
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1200;
     gap: 1.5rem;
 }
 
@@ -180,6 +180,86 @@
 }
 
 /* =====================
+   Logout modal
+===================== */
+
+.logout-modal{
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.logout-modal.show{
+    display: flex;
+}
+
+.logout-modal__backdrop{
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.logout-modal__dialog{
+    position: relative;
+    width: min(420px, calc(100% - 32px));
+    background: var(--nav-bg);
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    padding: 18px 18px 14px;
+}
+
+.logout-modal__title{
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--nav-text);
+}
+
+.logout-modal__desc{
+    margin: 0 0 16px;
+    color: var(--nav-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.logout-modal__actions{
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.logout-modal__btn{
+    border: 1px solid #e5e7eb;
+    background: white;
+    color: var(--nav-text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.logout-modal__btn:hover{
+    background: rgba(49, 130, 206, 0.06);
+    border-color: rgba(49, 130, 206, 0.25);
+}
+
+.logout-modal__btn--danger{
+    border-color: rgba(229, 62, 62, 0.35);
+    background: rgba(229, 62, 62, 0.08);
+    color: #c53030;
+}
+
+.logout-modal__btn--danger:hover{
+    background: rgba(229, 62, 62, 0.12);
+    border-color: rgba(229, 62, 62, 0.55);
+}
+
+/* =====================
    Menu buttons
 ===================== */
 
@@ -259,7 +339,7 @@
     border: 1px solid #e5e7eb;
     border-top: none;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    z-index: 60;
+    z-index: 1300;
 }
 
 @keyframes slideDown {

@@ -47,34 +47,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_diary'])) {
     if (empty($diary_date) || empty($content)) {
         $error_message = '日付と内容は必須です。';
     } else {
-        // 既存の日記があるかチェック
-        $check_stmt = mysqli_prepare($link, "SELECT id FROM diary_tbl WHERE group_id=? AND user_id=? AND diary_date=?");
-        mysqli_stmt_bind_param($check_stmt, "sss", $group_id, $user_id, $diary_date);
-        mysqli_stmt_execute($check_stmt);
-        $result = mysqli_stmt_get_result($check_stmt);
-        
-        if (mysqli_fetch_assoc($result)) {
-            // 更新
-            $update_stmt = mysqli_prepare($link, "UPDATE diary_tbl SET title=?, content=?, updated_at=NOW() WHERE group_id=? AND user_id=? AND diary_date=?");
-            mysqli_stmt_bind_param($update_stmt, "sssss", $title, $content, $group_id, $user_id, $diary_date);
-            if (mysqli_stmt_execute($update_stmt)) {
-                $success_message = '日記を更新しました。';
-            } else {
-                $error_message = '日記の更新に失敗しました。';
-            }
-            mysqli_stmt_close($update_stmt);
+        // 同日でも複数登録できるよう、常に新規登録
+        $insert_stmt = mysqli_prepare($link, "INSERT INTO diary_tbl (group_id, user_id, diary_date, title, content) VALUES (?, ?, ?, ?, ?)");
+        mysqli_stmt_bind_param($insert_stmt, "sssss", $group_id, $user_id, $diary_date, $title, $content);
+        if (mysqli_stmt_execute($insert_stmt)) {
+            $success_message = '日記を保存しました。';
         } else {
-            // 新規登録
-            $insert_stmt = mysqli_prepare($link, "INSERT INTO diary_tbl (group_id, user_id, diary_date, title, content) VALUES (?, ?, ?, ?, ?)");
-            mysqli_stmt_bind_param($insert_stmt, "sssss", $group_id, $user_id, $diary_date, $title, $content);
-            if (mysqli_stmt_execute($insert_stmt)) {
-                $success_message = '日記を保存しました。';
-            } else {
-                $error_message = '日記の保存に失敗しました。';
-            }
-            mysqli_stmt_close($insert_stmt);
+            $error_message = '日記の保存に失敗しました。';
         }
-        mysqli_stmt_close($check_stmt);
+        mysqli_stmt_close($insert_stmt);
     }
 }
 
@@ -97,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_diary'])) {
    日記一覧取得
 ===================== */
 $diaries = [];
-$stmt = mysqli_prepare($link, "SELECT id, diary_date, title, content, tags, created_at, updated_at FROM diary_tbl WHERE group_id=? AND user_id=? ORDER BY diary_date DESC");
+$stmt = mysqli_prepare($link, "SELECT id, diary_date, title, content, tags, created_at, updated_at FROM diary_tbl WHERE group_id=? AND user_id=? ORDER BY diary_date DESC, created_at DESC, id DESC");
 mysqli_stmt_bind_param($stmt, "ss", $group_id, $user_id);
 if (mysqli_stmt_execute($stmt)) {
     $result = mysqli_stmt_get_result($stmt);

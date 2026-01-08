@@ -11,7 +11,7 @@ if (!isset($NAV_BASE)) {
 <!-- 共通ナビ用スタイルを外部ファイルで読み込み -->
 <?php
 // HTMLテンプレートのCSS読み込みパスから判定
-$css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false || strpos($_SERVER['REQUEST_URI'], '/basketball/') !== false) ? '../../css/' : '../css/';
+$css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false || strpos($_SERVER['REQUEST_URI'], '/basketball/') !== false || strpos($_SERVER['REQUEST_URI'], '/T_MNO/') !== false) ? '../../css/' : '../css/';
 ?>
 <link rel="stylesheet" href="<?= $css_depth ?>nav.css">
 <!-- 共通ナビ -->
@@ -38,7 +38,7 @@ $css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false || strpos($_SE
                 登録情報編集
             </a>
             <div class="settings-divider"></div>
-            <a href="<?= htmlspecialchars($NAV_BASE . '/logout.php', ENT_QUOTES, 'UTF-8') ?>" onclick="return confirm('ログアウトしますか？')" class="logout-link">
+            <a href="<?= htmlspecialchars($NAV_BASE . '/logout.php', ENT_QUOTES, 'UTF-8') ?>" onclick="return confirmLogout(event)" class="logout-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                     <polyline points="16 17 21 12 16 7"></polyline>
@@ -59,7 +59,19 @@ $css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false || strpos($_SE
                 </ul>
             </li>
             <li class="<?= (basename($_SERVER['PHP_SELF']) === 'pi.php') ? 'active' : '' ?>"><button><a href="<?= htmlspecialchars($NAV_BASE . '/pi.php', ENT_QUOTES, 'UTF-8') ?>">身体情報</a></button></li>
-            <li><button><a href="#">テニス</a></button></li>
+
+            <?php
+            $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+            $isTennisPage = (strpos($requestUri, '/T_MNO/') !== false);
+            ?>
+            <li class="has-sub <?= $isTennisPage ? 'active' : '' ?>">
+                <button>テニス</button>
+                <ul class="sub-menu">
+                    <li><a href="<?= htmlspecialchars($NAV_BASE . '/T_MNO/index.php', ENT_QUOTES, 'UTF-8') ?>">試合設定</a></li>
+                    <li><a href="<?= htmlspecialchars($NAV_BASE . '/T_MNO/history.php', ENT_QUOTES, 'UTF-8') ?>">試合履歴</a></li>
+                    <li><a href="<?= htmlspecialchars($NAV_BASE . '/T_MNO/personal_stats.php', ENT_QUOTES, 'UTF-8') ?>">個人スタッツ</a></li>
+                </ul>
+            </li>
 
             <li class="has-sub <?= (strpos($_SERVER['PHP_SELF'], 'swim') !== false) ? 'active' : '' ?>">
                 <button>水泳</button>
@@ -86,6 +98,19 @@ $css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false || strpos($_SE
     </nav>
     <div class="app-title">Sports Analytics App</div>
 </div>
+
+<!-- ログアウト確認モーダル（JS表示） -->
+<div class="logout-modal" id="logoutModal" aria-hidden="true" style="display:none">
+    <div class="logout-modal__backdrop" onclick="closeLogoutModal()"></div>
+    <div class="logout-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle" aria-describedby="logoutModalDesc">
+        <h2 class="logout-modal__title" id="logoutModalTitle">ログアウト</h2>
+        <p class="logout-modal__desc" id="logoutModalDesc">ログアウトします。未保存の内容がある場合は、先に保存してください。</p>
+        <div class="logout-modal__actions">
+            <button type="button" class="logout-modal__btn" onclick="closeLogoutModal()">キャンセル</button>
+            <button type="button" class="logout-modal__btn logout-modal__btn--danger" id="logoutModalConfirmBtn" onclick="proceedLogout()">ログアウト</button>
+        </div>
+    </div>
+</div>
 <script>
 function toggleMobileMenu() {
     const nav = document.getElementById('mobileNav');
@@ -106,6 +131,51 @@ document.addEventListener('click', function(event) {
     const settingsBtn = document.querySelector('.settings-btn');
     if (!settingsBtn.contains(event.target)) {
         menu.classList.remove('show');
+    }
+});
+
+function confirmLogout(event) {
+    if (event) event.preventDefault();
+    const link = event?.currentTarget;
+    window.__pendingLogoutHref = link?.getAttribute('href') || 'logout.php';
+    openLogoutModal();
+    return false;
+}
+
+function openLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden', 'false');
+
+    // フォーカスを確定ボタンへ
+    const confirmBtn = document.getElementById('logoutModalConfirmBtn');
+    if (confirmBtn) {
+        // 直後の描画で確実にフォーカス
+        setTimeout(() => confirmBtn.focus(), 0);
+    }
+}
+
+function closeLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    if (!modal) return;
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    modal.style.display = 'none';
+}
+
+function proceedLogout() {
+    const href = window.__pendingLogoutHref || 'logout.php';
+    window.location.href = href;
+}
+
+// Escで閉じる
+document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Escape') return;
+    const modal = document.getElementById('logoutModal');
+    if (modal && modal.classList.contains('show')) {
+        closeLogoutModal();
     }
 });
 </script>

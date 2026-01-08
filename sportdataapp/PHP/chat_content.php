@@ -231,7 +231,7 @@ if (isset($stmt) && mysqli_stmt_execute($stmt)) {
         // デバッグ出力を有効化
         echo "<!-- DEBUG: msg_user_id=[" . $msg['user_id'] . "] session_user_id=[" . $user_id . "] isMyMessage=" . ($isMyMessage ? 'TRUE' : 'FALSE') . " -->\n";
         ?>
-        <div class="message-item <?= $isMyMessage ? 'my-message' : 'other-message' ?>">
+        <div class="message-item <?= $isMyMessage ? 'my-message' : 'other-message' ?>" data-message-id="<?= (int)$msg['id'] ?>">
             <?php if (!$isMyMessage): ?>
             <div class="message-avatar">
                 <?= mb_substr($msg['name'] ?? '?', 0, 1, 'UTF-8') ?>

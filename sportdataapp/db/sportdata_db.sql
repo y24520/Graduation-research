@@ -544,7 +544,6 @@ ALTER TABLE `chat_tbl`
 --
 ALTER TABLE `diary_tbl`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_user_date` (`group_id`,`user_id`,`diary_date`),
   ADD KEY `idx_user` (`group_id`,`user_id`),
   ADD KEY `idx_date` (`diary_date`);
 

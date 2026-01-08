@@ -64,6 +64,19 @@ if ($combo_stmt) {
     mysqli_stmt_close($combo_stmt);
 }
 
+// 記録が1件もない場合は、入力を促して記録画面へ誘導
+if (empty($combos)) {
+    header('Content-Type: text/html; charset=UTF-8');
+    $redirect = 'swim_input.php';
+    echo "<!doctype html><html lang=\"ja\"><head><meta charset=\"utf-8\"><title>水泳｜分析</title></head><body>";
+    echo "<script>\n";
+    echo "alert('水泳の記録データがありません。先に記録を入力してください。');\n";
+    echo "location.replace('" . htmlspecialchars($redirect, ENT_QUOTES, 'UTF-8') . "');\n";
+    echo "</script>";
+    echo "</body></html>";
+    exit;
+}
+
 /* =====================
    最新記録（今回）
 ===================== */
@@ -114,7 +127,14 @@ $res = mysqli_stmt_get_result($stmt);
 $current = mysqli_fetch_assoc($res);
 
 if (!$current) {
-    echo "記録がありません";
+    header('Content-Type: text/html; charset=UTF-8');
+    $redirect = 'swim_input.php';
+    echo "<!doctype html><html lang=\"ja\"><head><meta charset=\"utf-8\"><title>水泳｜分析</title></head><body>";
+    echo "<script>\n";
+    echo "alert('水泳の記録データがありません。先に記録を入力してください。');\n";
+    echo "location.replace('" . htmlspecialchars($redirect, ENT_QUOTES, 'UTF-8') . "');\n";
+    echo "</script>";
+    echo "</body></html>";
     exit;
 }
 

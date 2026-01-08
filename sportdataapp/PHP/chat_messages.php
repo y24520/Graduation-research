@@ -23,10 +23,12 @@ $group_id = $_SESSION['group_id'];
 $chat_type = $_GET['type'] ?? '';
 $chat_group_id = isset($_GET['chat_group_id']) ? intval($_GET['chat_group_id']) : null;
 $recipient_id = $_GET['recipient'] ?? null;
+$after_id = isset($_GET['after_id']) ? intval($_GET['after_id']) : 0;
 
 $messages = [];
 
 if ($chat_type === 'direct' && $recipient_id) {
+    $afterSql = ($after_id > 0) ? " AND c.id > ?" : "";
     $stmt = mysqli_prepare($link, "
         SELECT c.id, c.user_id, c.message, c.image_path, c.image_name, c.created_at, c.is_deleted, l.name 
         FROM chat_tbl c 
@@ -37,19 +39,30 @@ if ($chat_type === 'direct' && $recipient_id) {
             (c.user_id = ? AND c.recipient_id = ?) 
             OR (c.user_id = ? AND c.recipient_id = ?)
         )
+        {$afterSql}
         ORDER BY c.created_at ASC
     ");
-    mysqli_stmt_bind_param($stmt, "sssss", $group_id, $user_id, $recipient_id, $recipient_id, $user_id);
+    if ($after_id > 0) {
+        mysqli_stmt_bind_param($stmt, "sssssi", $group_id, $user_id, $recipient_id, $recipient_id, $user_id, $after_id);
+    } else {
+        mysqli_stmt_bind_param($stmt, "sssss", $group_id, $user_id, $recipient_id, $recipient_id, $user_id);
+    }
 } else if ($chat_type === 'group' && $chat_group_id) {
+    $afterSql = ($after_id > 0) ? " AND c.id > ?" : "";
     $stmt = mysqli_prepare($link, "
         SELECT c.id, c.user_id, c.message, c.image_path, c.image_name, c.created_at, c.is_deleted, l.name 
         FROM chat_tbl c 
         LEFT JOIN login_tbl l ON c.group_id = l.group_id AND c.user_id = l.user_id 
         WHERE c.chat_group_id = ? 
         AND c.chat_type = 'group'
+        {$afterSql}
         ORDER BY c.created_at ASC
     ");
-    mysqli_stmt_bind_param($stmt, "i", $chat_group_id);
+    if ($after_id > 0) {
+        mysqli_stmt_bind_param($stmt, "ii", $chat_group_id, $after_id);
+    } else {
+        mysqli_stmt_bind_param($stmt, "i", $chat_group_id);
+    }
 }
 
 if (isset($stmt) && mysqli_stmt_execute($stmt)) {
@@ -101,7 +114,7 @@ if (isset($stmt) && mysqli_stmt_execute($stmt)) {
 foreach ($messages as $msg):
 $isMyMessage = trim((string)$msg['user_id']) === trim((string)$user_id);
 ?>
-<div class="message-item <?= $isMyMessage ? 'my-message' : 'other-message' ?>">
+<div class="message-item <?= $isMyMessage ? 'my-message' : 'other-message' ?>" data-message-id="<?= (int)$msg['id'] ?>">
     <?php if (!$isMyMessage): ?>
     <div class="message-avatar">
         <?= mb_substr($msg['name'] ?? '?', 0, 1, 'UTF-8') ?>

@@ -62,7 +62,25 @@
             <p>最初の日記を書いてみましょう！</p>
         </div>
         <?php else: ?>
+            <?php $currentMonthKey = null; ?>
             <?php foreach ($diaries as $diary): ?>
+            <?php
+                $ts = strtotime($diary['diary_date']);
+                $monthKey = date('Y-m', $ts);
+                $monthLabel = date('Y年n月', $ts);
+            ?>
+
+            <?php if ($currentMonthKey !== $monthKey): ?>
+                <?php if ($currentMonthKey !== null): ?>
+                    </div>
+                </section>
+                <?php endif; ?>
+                <?php $currentMonthKey = $monthKey; ?>
+                <section class="diary-month" data-month="<?= htmlspecialchars($monthKey, ENT_QUOTES, 'UTF-8') ?>">
+                    <h2 class="diary-month-title"><?= htmlspecialchars($monthLabel, ENT_QUOTES, 'UTF-8') ?></h2>
+                    <div class="diary-month-grid">
+            <?php endif; ?>
+
             <div class="diary-card" data-id="<?= $diary['id'] ?>" data-tags="<?= htmlspecialchars($diary['tags'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 <div class="diary-card-header">
                     <div class="diary-card-date">
@@ -105,6 +123,10 @@
                 <?php endif; ?>
             </div>
             <?php endforeach; ?>
+            <?php if ($currentMonthKey !== null): ?>
+                    </div>
+                </section>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>

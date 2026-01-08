@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS diary_tbl (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_user (group_id, user_id),
     INDEX idx_date (diary_date),
-    UNIQUE KEY unique_user_date (group_id, user_id, diary_date)
+    INDEX idx_user_date (group_id, user_id, diary_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- チャットグループテーブル

@@ -157,6 +157,10 @@ function refreshMessages() {
     
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
+
+    // 末尾メッセージID（新着取得用）
+    const lastEl = chatMessages.querySelector('.message-item:last-child');
+    const lastId = lastEl ? parseInt(lastEl.getAttribute('data-message-id') || '0', 10) : 0;
     
     const params = currentChatType === 'group' 
         ? `type=group&chat_group_id=${currentChatId}`
@@ -166,10 +170,37 @@ function refreshMessages() {
     const isScrolledToBottom = chatMessages.scrollHeight - chatMessages.clientHeight <= chatMessages.scrollTop + 50;
     
     $.ajax({
-        url: `chat_messages.php?${params}`,
+        url: `chat_messages.php?${params}&after_id=${Number.isFinite(lastId) ? lastId : 0}`,
         method: 'GET',
         success: function(response) {
-            chatMessages.innerHTML = response;
+            const html = (response || '').trim();
+            if (html === '') {
+                return; // 新着なし
+            }
+
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+
+            // 既存メッセージの重複挿入を防ぐ（重複すると表示アニメーションが定期的に再発する）
+            const nodes = Array.from(tmp.childNodes);
+            nodes.forEach(node => {
+                if (node.nodeType !== Node.ELEMENT_NODE) {
+                    return;
+                }
+
+                const el = /** @type {HTMLElement} */ (node);
+                if (el.classList.contains('message-item')) {
+                    const idAttr = el.getAttribute('data-message-id');
+                    if (idAttr) {
+                        const exists = chatMessages.querySelector(`.message-item[data-message-id="${CSS.escape(idAttr)}"]`);
+                        if (exists) {
+                            return;
+                        }
+                    }
+                }
+                chatMessages.appendChild(el);
+            });
+
             if (isScrolledToBottom) {
                 scrollToBottom();
             }

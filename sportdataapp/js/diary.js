@@ -266,8 +266,11 @@ function filterDiaries() {
     const activeFilters = getActiveTagFilters();
 
     cards.forEach(card => {
-        const title = card.querySelector('.diary-card-title').textContent.toLowerCase();
-        const content = card.querySelector('.diary-card-content').textContent.toLowerCase();
+        const titleEl = card.querySelector('.diary-card-title');
+        const contentEl = card.querySelector('.diary-card-content');
+
+        const title = titleEl ? titleEl.textContent.toLowerCase() : '';
+        const content = contentEl ? contentEl.textContent.toLowerCase() : '';
         const tags = Array.from(card.querySelectorAll('.tag')).map(tag => tag.textContent.toLowerCase());
 
         // 検索キーワードのチェック
@@ -278,14 +281,21 @@ function filterDiaries() {
 
         // 両方の条件を満たす場合のみ表示
         if (matchesSearch && matchesTags) {
-            card.style.display = 'block';
+            card.style.display = '';
         } else {
             card.style.display = 'none';
         }
     });
 
+    // 月セクション内に表示カードが無ければ、その月を隠す
+    document.querySelectorAll('.diary-month').forEach(section => {
+        const visibleInMonth = Array.from(section.querySelectorAll('.diary-card'))
+            .some(card => card.style.display !== 'none');
+        section.style.display = visibleInMonth ? '' : 'none';
+    });
+
     // 結果がない場合
-    const visibleCards = document.querySelectorAll('.diary-card[style="display: block;"]').length;
+    const visibleCards = Array.from(cards).filter(card => card.style.display !== 'none').length;
     updateEmptyState(visibleCards === 0, searchTerm || activeFilters.length > 0);
 }
 
@@ -360,7 +370,7 @@ function updateEmptyState(isEmpty, isFiltering) {
         if (emptyState) {
             emptyState.style.display = 'none';
         }
-        diaryGrid.style.display = 'grid';
+        diaryGrid.style.display = 'block';
     }
 }
 
