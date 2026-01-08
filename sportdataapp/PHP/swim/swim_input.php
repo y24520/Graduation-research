@@ -32,6 +32,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $condition  = (int)$_POST['condition'];
     $memo       = $_POST['memo'];
 
+    // 公式戦の入力
+    $is_official = isset($_POST['is_official']) && (string)$_POST['is_official'] === '1';
+    if ($is_official) {
+        $meet_name = trim((string)($_POST['meet_name'] ?? ''));
+        $round = trim((string)($_POST['round'] ?? ''));
+        $session_type = 'official';
+
+        if ($meet_name === '') {
+            $meet_name = null;
+        }
+        if ($round === '') {
+            $round = null;
+        }
+    } else {
+        $meet_name = null;
+        $round = null;
+        $session_type = 'practice';
+    }
+
     $pool       = $_POST['pool'];
     $event      = $_POST['event'];
     $distance   = (int)$_POST['distance'];

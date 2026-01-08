@@ -8,6 +8,53 @@
 }
 
 /* =====================
+   Base (responsive-safe)
+   - Uses :where() to keep specificity at 0
+   - Won't override page CSS that already styles the same elements
+===================== */
+
+:where(*, *::before, *::after){
+    box-sizing: border-box;
+}
+
+:where(html){
+    -webkit-text-size-adjust: 100%;
+}
+
+:where(body){
+    margin: 0;
+}
+
+:where(img, video, canvas){
+    max-width: 100%;
+    height: auto;
+}
+
+/* Unbroken text (IDs/URLs/long names) shouldn't break layout */
+:where(p, h1, h2, h3, h4, h5, h6, a, td, th){
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+:where(input, select, textarea, button){
+    font: inherit;
+    max-width: 100%;
+}
+
+/* Common wrapper: if a page uses .container without styling, make it responsive */
+:where(.container){
+    width: min(1200px, calc(100% - 32px));
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 767px){
+    :where(.container){
+        width: calc(100% - 24px);
+    }
+}
+
+/* =====================
    Scrollbar (hide only)
    - Keeps scrolling enabled
    - Applies across pages that import site.css

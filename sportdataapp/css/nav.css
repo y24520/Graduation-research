@@ -467,6 +467,11 @@
         background: rgba(49, 130, 206, 0.05);
         padding-left: 2rem;
         margin-top: 0;
+        display: none !important;
+    }
+
+    /* 親メニュークリックで開閉（JSが li.open を付与） */
+    .menu-root li.open > .sub-menu {
         display: block !important;
     }
 

@@ -38,14 +38,18 @@ $userHeight = $_SESSION['height'] ?? '';
 $userWeight = $_SESSION['weight'] ?? '';
 $userPosition = $_SESSION['position'] ?? '';
 
+// 今月の範囲（created_at で判定）
+$monthStart = date('Y-m-01 00:00:00');
+$monthEnd = date('Y-m-01 00:00:00', strtotime('+1 month'));
+
 // 今月の目標が既に登録されているかチェック
 $stmt_check = mysqli_prepare($link, "
     SELECT COUNT(*) as count 
     FROM goal_tbl 
-    WHERE group_id = ? AND user_id = ? 
-    AND DATE_FORMAT(created_at, '%Y-%m') = ?
+    WHERE group_id = ? AND user_id = ?
+      AND created_at >= ? AND created_at < ?
 ");
-mysqli_stmt_bind_param($stmt_check, "sss", $group_id, $user_id, $currentMonth);
+mysqli_stmt_bind_param($stmt_check, "ssss", $group_id, $user_id, $monthStart, $monthEnd);
 mysqli_stmt_execute($stmt_check);
 $result_check = mysqli_stmt_get_result($stmt_check);
 if ($row_check = mysqli_fetch_assoc($result_check)) {
@@ -53,9 +57,16 @@ if ($row_check = mysqli_fetch_assoc($result_check)) {
 }
 mysqli_stmt_close($stmt_check);
 
-// goal表示
-$stmt = mysqli_prepare($link, "SELECT goal FROM goal_tbl WHERE group_id = ? AND user_id = ?");
-mysqli_stmt_bind_param($stmt, "ss", $group_id, $user_id);
+// goal表示（今月の最新）
+$stmt = mysqli_prepare($link, "
+    SELECT goal
+    FROM goal_tbl
+    WHERE group_id = ? AND user_id = ?
+      AND created_at >= ? AND created_at < ?
+    ORDER BY created_at DESC
+    LIMIT 1
+");
+mysqli_stmt_bind_param($stmt, "ssss", $group_id, $user_id, $monthStart, $monthEnd);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 if ($row = mysqli_fetch_assoc($result)) {

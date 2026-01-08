@@ -21,6 +21,10 @@ $user_id = $_SESSION['user_id'];
 $group_id = $_SESSION['group_id'];
 $corrent_goal = "";
 
+// 今月の範囲（created_at で判定）
+$monthStart = date('Y-m-01 00:00:00');
+$monthEnd = date('Y-m-01 00:00:00', strtotime('+1 month'));
+
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
 header('Content-Type: application/json');
 
@@ -31,21 +35,34 @@ if (empty(trim($goal))) {
     exit();
 }
 
-$stmt2 = mysqli_prepare($link, "SELECT * FROM goal_tbl WHERE user_id = ? AND group_id = ?");
-mysqli_stmt_bind_param($stmt2, "ss", $user_id , $group_id);
+$stmt2 = mysqli_prepare($link, "
+    SELECT goal_id
+    FROM goal_tbl
+    WHERE user_id = ? AND group_id = ?
+      AND created_at >= ? AND created_at < ?
+    ORDER BY created_at DESC
+    LIMIT 1
+");
+mysqli_stmt_bind_param($stmt2, "ssss", $user_id , $group_id, $monthStart, $monthEnd);
 mysqli_stmt_execute($stmt2);
 $result2 = mysqli_stmt_get_result($stmt2);
 
-if(mysqli_num_rows($result2) > 0){
-    $stmt2 = mysqli_prepare($link, "UPDATE goal_tbl SET goal = ? ,created_at = NOW() WHERE user_id = ? AND group_id = ?");
-    mysqli_stmt_bind_param($stmt2, "sss", $goal, $user_id, $group_id);
-    $success = mysqli_stmt_execute($stmt2);
-    mysqli_stmt_close($stmt2);
-}else{
-    $stmt3 = mysqli_prepare($link,"INSERT INTO goal_tbl(group_id,user_id,goal,created_at)VALUES(?, ?, ?,NOW())");
-    mysqli_stmt_bind_param($stmt3, "sss", $group_id, $user_id, $goal);
-    $success = mysqli_stmt_execute($stmt3);
-    mysqli_stmt_close($stmt3);
+$existingGoalId = null;
+if ($row2 = mysqli_fetch_assoc($result2)) {
+    $existingGoalId = (int)($row2['goal_id'] ?? 0);
+}
+mysqli_stmt_close($stmt2);
+
+if ($existingGoalId) {
+    $stmtUpd = mysqli_prepare($link, "UPDATE goal_tbl SET goal = ? WHERE goal_id = ? AND user_id = ? AND group_id = ?");
+    mysqli_stmt_bind_param($stmtUpd, "siss", $goal, $existingGoalId, $user_id, $group_id);
+    $success = mysqli_stmt_execute($stmtUpd);
+    mysqli_stmt_close($stmtUpd);
+} else {
+    $stmtIns = mysqli_prepare($link,"INSERT INTO goal_tbl(group_id,user_id,goal,created_at) VALUES(?, ?, ?, NOW())");
+    mysqli_stmt_bind_param($stmtIns, "sss", $group_id, $user_id, $goal);
+    $success = mysqli_stmt_execute($stmtIns);
+    mysqli_stmt_close($stmtIns);
 }
 
 mysqli_close($link);

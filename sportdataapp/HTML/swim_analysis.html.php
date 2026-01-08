@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>水泳｜分析</title>
 <link rel="stylesheet" href="../../css/swim_analysis.css">
 <link rel="stylesheet" href="../../css/site.css">
@@ -93,11 +94,25 @@
                         <input type="date" id="date_to" name="date_to" value="<?= htmlspecialchars($date_to ?? '', ENT_QUOTES, 'UTF-8') ?>" class="filter-input">
                     </div>
                 </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">大会名</label>
+                    <select id="meet_name" name="meet_name" class="filter-input" <?= $selected_combo ? '' : 'disabled' ?> aria-label="大会名で絞り込み">
+                        <option value="">すべて</option>
+                        <?php if (!empty($meet_options)): ?>
+                            <?php foreach ($meet_options as $opt): ?>
+                                <option value="<?= htmlspecialchars($opt, ENT_QUOTES, 'UTF-8') ?>" <?= (isset($meet_name) && $meet_name === $opt) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($opt, ENT_QUOTES, 'UTF-8') ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
             </div>
             
             <div class="filter-actions">
                 <?php if ($selected_combo): ?>
-                <button type="submit" class="filter-btn primary-btn">日付で絞り込み</button>
+                <button type="submit" class="filter-btn primary-btn">絞り込み</button>
                 <?php endif; ?>
                 <a href="?" class="filter-btn reset-btn">リセット</a>
             </div>
@@ -315,6 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const distanceButtons = document.querySelectorAll('.distance-btn-analysis');
     const comboInput = document.getElementById('combo');
     const filterForm = document.querySelector('.filter-form');
+    const meetSelect = document.getElementById('meet_name');
     
     distanceButtons.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -326,6 +342,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 隠しフィールドに値を設定
             comboInput.value = this.dataset.combo;
+
+            // 種目変更時は大会名フィルターを解除（大会が違うとデータが0件になりやすいため）
+            if (meetSelect) {
+                meetSelect.value = '';
+            }
             
             // 自動でフォーム送信
             filterForm.submit();

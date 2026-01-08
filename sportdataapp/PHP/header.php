@@ -119,6 +119,25 @@ function toggleMobileMenu() {
     hamburger.classList.toggle('active');
 }
 
+function initMobileSubmenus() {
+    const nav = document.getElementById('mobileNav');
+    if (!nav) return;
+
+    const isMobile = window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
+    if (!isMobile) return;
+
+    const items = nav.querySelectorAll('.menu-root > li.has-sub > button');
+    items.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            // モバイル時は親ボタンでサブメニュー開閉
+            e.preventDefault();
+            const li = btn.closest('li');
+            if (!li) return;
+            li.classList.toggle('open');
+        });
+    });
+}
+
 function toggleSettingsMenu(event) {
     event.stopPropagation();
     const menu = document.getElementById('settingsMenu');
@@ -177,5 +196,9 @@ document.addEventListener('keydown', function (event) {
     if (modal && modal.classList.contains('show')) {
         closeLogoutModal();
     }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    initMobileSubmenus();
 });
 </script>

@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>水泳｜記録</title>
     <link rel="stylesheet" href="../../css/swim_input.css">
     <link rel="stylesheet" href="../../css/site.css">

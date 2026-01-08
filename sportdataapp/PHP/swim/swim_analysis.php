@@ -37,6 +37,10 @@ mysqli_set_charset($link, "utf8");
 $selected_combo = $_GET['combo'] ?? null;
 $date_from = $_GET['date_from'] ?? null;
 $date_to = $_GET['date_to'] ?? null;
+$meet_name = isset($_GET['meet_name']) ? trim((string)$_GET['meet_name']) : null;
+if ($meet_name === '') {
+    $meet_name = null;
+}
 $sel_pool = null; $sel_event = null; $sel_distance = null;
 if ($selected_combo) {
     $parts = explode('|', $selected_combo);
@@ -263,6 +267,7 @@ if ($best_time === null) {
    推移データ（期間フィルター対応）
 ===================== */
 $where_date = "";
+$where_meet = "";
 $bind_types = "ssssi";
 $bind_params = [$group_id, $user_id, $pool, $event, is_numeric($distance) ? (int)$distance : $distance];
 
@@ -281,12 +286,54 @@ if ($date_from && $date_to) {
     $bind_params[] = $date_to;
 }
 
+// 大会名フィルター
+if ($meet_name !== null) {
+    $where_meet = " AND meet_name = ?";
+    $bind_types .= "s";
+    $bind_params[] = $meet_name;
+}
+
+// 大会名一覧（ドロップダウン用）: 現在選択中の種目/距離 + 期間条件の範囲で抽出
+$meet_options = [];
+$meet_stmt = mysqli_prepare(
+    $link,
+    "SELECT DISTINCT meet_name FROM swim_tbl WHERE group_id=? AND user_id=? AND pool=? AND event=? AND distance=? {$where_date} AND meet_name IS NOT NULL AND meet_name <> '' ORDER BY meet_name ASC"
+);
+if ($meet_stmt) {
+    $meet_bind_types = "ssssi";
+    $meet_bind_params = [$group_id, $user_id, $pool, $event, is_numeric($distance) ? (int)$distance : $distance];
+    if ($date_from && $date_to) {
+        $meet_bind_types .= "ss";
+        $meet_bind_params[] = $date_from;
+        $meet_bind_params[] = $date_to;
+    } elseif ($date_from) {
+        $meet_bind_types .= "s";
+        $meet_bind_params[] = $date_from;
+    } elseif ($date_to) {
+        $meet_bind_types .= "s";
+        $meet_bind_params[] = $date_to;
+    }
+
+    mysqli_stmt_bind_param($meet_stmt, $meet_bind_types, ...$meet_bind_params);
+    if (mysqli_stmt_execute($meet_stmt)) {
+        $mr = mysqli_stmt_get_result($meet_stmt);
+        while ($mrow = mysqli_fetch_assoc($mr)) {
+            $name = trim((string)($mrow['meet_name'] ?? ''));
+            if ($name !== '') {
+                $meet_options[] = $name;
+            }
+        }
+    }
+    mysqli_stmt_close($meet_stmt);
+}
+
 $sql = "
-    SELECT swim_date, total_time, lap_json, stroke_json, `condition`, memo, created_at
+        SELECT swim_date, total_time, lap_json, stroke_json, `condition`, memo, created_at
     FROM swim_tbl
     WHERE group_id=? AND user_id=?
       AND pool=? AND event=? AND distance=?
-      {$where_date}
+            {$where_date}
+            {$where_meet}
     ORDER BY swim_date ASC, created_at ASC
 ";
 $stmt = mysqli_prepare($link, $sql);
@@ -318,18 +365,45 @@ if (isset($stmt) && $stmt) mysqli_stmt_close($stmt);
 // 最新10件のラップタイムとストロークを取得（選択された種目に限定）
 if ($sel_pool && $sel_event && $sel_distance) {
     // フィルタがある場合は選択された種目のみ
+    $lap_where_date = "";
+    $lap_where_meet = "";
+    $lap_bind_types = "ssssi";
+    $lap_bind_params = [$group_id, $user_id, $sel_pool, $sel_event, is_numeric($sel_distance) ? (int)$sel_distance : $sel_distance];
+
+    if ($date_from && $date_to) {
+        $lap_where_date = " AND swim_date BETWEEN ? AND ?";
+        $lap_bind_types .= "ss";
+        $lap_bind_params[] = $date_from;
+        $lap_bind_params[] = $date_to;
+    } elseif ($date_from) {
+        $lap_where_date = " AND swim_date >= ?";
+        $lap_bind_types .= "s";
+        $lap_bind_params[] = $date_from;
+    } elseif ($date_to) {
+        $lap_where_date = " AND swim_date <= ?";
+        $lap_bind_types .= "s";
+        $lap_bind_params[] = $date_to;
+    }
+
+    if ($meet_name !== null) {
+        $lap_where_meet = " AND meet_name = ?";
+        $lap_bind_types .= "s";
+        $lap_bind_params[] = $meet_name;
+    }
+
     $lap_compare_sql = "SELECT pool, event, distance, total_time, stroke_json, lap_json, swim_date 
                         FROM swim_tbl 
                         WHERE group_id = ? AND user_id = ? 
                           AND pool = ? AND event = ? AND distance = ?
+                          {$lap_where_date}
+                          {$lap_where_meet}
                         ORDER BY swim_date DESC, created_at DESC 
                         LIMIT 10";
     $lap_stmt = mysqli_prepare($link, $lap_compare_sql);
     $lap_comparison_data = [];
 
     if ($lap_stmt) {
-        $d_param = is_numeric($sel_distance) ? (int)$sel_distance : $sel_distance;
-        mysqli_stmt_bind_param($lap_stmt, "ssssi", $group_id, $user_id, $sel_pool, $sel_event, $d_param);
+        mysqli_stmt_bind_param($lap_stmt, $lap_bind_types, ...$lap_bind_params);
         if (mysqli_stmt_execute($lap_stmt)) {
             $lap_result = mysqli_stmt_get_result($lap_stmt);
             
