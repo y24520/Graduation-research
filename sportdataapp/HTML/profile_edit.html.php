@@ -150,6 +150,29 @@
                            required>
                     <span class="field-error" id="position_error"></span>
                 </div>
+
+                <div class="form-group">
+                    <label for="sport">
+                        <i class="fas fa-basketball-ball"></i> 種目
+                        <?php if (!empty($hasSportColumn)): ?>
+                            <span class="required">*</span>
+                        <?php endif; ?>
+                    </label>
+                    <?php if (!empty($hasSportColumn)): ?>
+                        <?php $currentSport = (string)($user_data['sport'] ?? ''); ?>
+                        <select id="sport" name="sport" required>
+                            <option value="" <?= $currentSport === '' ? 'selected' : '' ?>>選択してください</option>
+                            <option value="swim" <?= $currentSport === 'swim' ? 'selected' : '' ?>>水泳</option>
+                            <option value="basketball" <?= $currentSport === 'basketball' ? 'selected' : '' ?>>バスケ</option>
+                            <option value="tennis" <?= $currentSport === 'tennis' ? 'selected' : '' ?>>テニス</option>
+                            <option value="all" <?= $currentSport === 'all' ? 'selected' : '' ?>>全て/複数</option>
+                        </select>
+                        <small class="field-hint">※ 選んだ種目だけがメニューに表示されます（管理者は全て表示）</small>
+                    <?php else: ?>
+                        <p class="section-note">※ 種目でメニューを出し分けるには、DBに sport 列の追加が必要です（db/add_user_sport.sql）。</p>
+                    <?php endif; ?>
+                    <span class="field-error" id="sport_error"></span>
+                </div>
             </div>
 
             <!-- パスワード変更セクション -->

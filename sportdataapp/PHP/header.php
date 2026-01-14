@@ -23,11 +23,35 @@ if ($isSuperAdmin) {
         exit;
     }
 }
+
+// 種目によるメニュー出し分け
+// - sport が未設定/空/"all" の場合: 全て表示
+// - 管理者/スーパー管理者: 全て表示
+$isAdminUser = !empty($_SESSION['is_admin']) || !empty($_SESSION['is_super_admin']);
+$rawSport = isset($_SESSION['sport']) ? (string)$_SESSION['sport'] : '';
+$rawSport = strtolower(trim($rawSport));
+$selectedSports = [];
+if ($rawSport !== '') {
+    // "swim,basketball" のようなCSVを許容
+    $parts = preg_split('/\s*,\s*/', $rawSport, -1, PREG_SPLIT_NO_EMPTY);
+    if (is_array($parts)) {
+        foreach ($parts as $p) {
+            $p = strtolower(trim((string)$p));
+            if ($p !== '') {
+                $selectedSports[] = $p;
+            }
+        }
+    }
+}
+$restrictSports = (!$isAdminUser && !empty($selectedSports) && !in_array('all', $selectedSports, true));
+$canShowTennis = (!$restrictSports) || in_array('tennis', $selectedSports, true);
+$canShowSwim = (!$restrictSports) || in_array('swim', $selectedSports, true);
+$canShowBasketball = (!$restrictSports) || in_array('basketball', $selectedSports, true);
 ?>
 <!-- 共通ナビ用スタイルを外部ファイルで読み込み -->
 <?php
 // HTMLテンプレートのCSS読み込みパスから判定
-$css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false || strpos($_SERVER['REQUEST_URI'], '/basketball/') !== false || strpos($_SERVER['REQUEST_URI'], '/T_MNO/') !== false) ? '../../css/' : '../css/';
+$css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false || strpos($_SERVER['REQUEST_URI'], '/basketball/') !== false || strpos($_SERVER['REQUEST_URI'], '/T_MNO/') !== false || strpos($_SERVER['REQUEST_URI'], '/T_board/') !== false || strpos($_SERVER['REQUEST_URI'], '/B_board/') !== false) ? '../../css/' : '../css/';
 ?>
 <link rel="stylesheet" href="<?= $css_depth ?>nav.css">
 <!-- 共通ナビ -->
@@ -98,29 +122,37 @@ $css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false || strpos($_SE
 
             <?php
             $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-            $isTennisPage = (strpos($requestUri, '/T_MNO/') !== false);
+            $isTennisPage = (strpos($requestUri, '/T_MNO/') !== false || strpos($requestUri, '/T_board/') !== false);
             ?>
+            <?php if ($canShowTennis): ?>
             <li class="has-sub <?= $isTennisPage ? 'active' : '' ?>">
                 <button>テニス</button>
                 <ul class="sub-menu">
                     <li><a href="<?= htmlspecialchars($NAV_BASE . '/T_MNO/index.php', ENT_QUOTES, 'UTF-8') ?>">試合設定</a></li>
                     <li><a href="<?= htmlspecialchars($NAV_BASE . '/T_MNO/history.php', ENT_QUOTES, 'UTF-8') ?>">試合履歴</a></li>
                     <li><a href="<?= htmlspecialchars($NAV_BASE . '/T_MNO/personal_stats.php', ENT_QUOTES, 'UTF-8') ?>">個人スタッツ</a></li>
+                                <li><a href="<?= htmlspecialchars($NAV_BASE . '/T_board/T_board.php', ENT_QUOTES, 'UTF-8') ?>">作戦ボード</a></li>
                 </ul>
             </li>
 
+            <?php endif; ?>
+
+            <?php if ($canShowSwim): ?>
             <li class="has-sub <?= (strpos($_SERVER['PHP_SELF'], 'swim') !== false) ? 'active' : '' ?>">
                 <button>水泳</button>
                 <ul class="sub-menu">
                     <li><a href="<?= htmlspecialchars($NAV_BASE . '/swim/swim_input.php', ENT_QUOTES, 'UTF-8') ?>">記録</a></li>
+                    <li><a href="<?= htmlspecialchars($NAV_BASE . '/swim/swim_practice_create.php', ENT_QUOTES, 'UTF-8') ?>">練習作成</a></li>
                     <li><a href="<?= htmlspecialchars($NAV_BASE . '/swim/swim_analysis.php', ENT_QUOTES, 'UTF-8') ?>">分析</a></li>
                 </ul>
             </li>
+            <?php endif; ?>
 
             <?php
             $currentPage = basename($_SERVER['PHP_SELF']);
-            $isBasketballPage = in_array($currentPage, ['basketball_index.php', 'game.php', 'analysis.php', 'final.php', 'save_game.php', 'save_to_db.php'], true);
+            $isBasketballPage = in_array($currentPage, ['basketball_index.php', 'game.php', 'analysis.php', 'final.php', 'save_game.php', 'save_to_db.php', 'B_board.php'], true);
             ?>
+            <?php if ($canShowBasketball): ?>
             <li class="has-sub <?= ($isBasketballPage) ? 'active' : '' ?>">
                 <button>バスケ</button>
                 <ul class="sub-menu">
@@ -128,8 +160,10 @@ $css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false || strpos($_SE
                     <li><a href="<?= htmlspecialchars($NAV_BASE . '/game.php', ENT_QUOTES, 'UTF-8') ?>">試合記録</a></li>
                     <li><a href="<?= htmlspecialchars($NAV_BASE . '/analysis.php', ENT_QUOTES, 'UTF-8') ?>">分析</a></li>
                     <li><a href="<?= htmlspecialchars($NAV_BASE . '/final.php', ENT_QUOTES, 'UTF-8') ?>">最終結果</a></li>
+                    <li><a href="<?= htmlspecialchars($NAV_BASE . '/B_board/B_board.php', ENT_QUOTES, 'UTF-8') ?>">作戦ボード</a></li>
                 </ul>
             </li>
+            <?php endif; ?>
             <?php endif; ?>
         </ul>
     </nav>
@@ -149,19 +183,76 @@ $css_depth = (strpos($_SERVER['REQUEST_URI'], '/swim/') !== false || strpos($_SE
     </div>
 </div>
 <script>
+function isMobileNav() {
+    return window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
+}
+
+function closeAllDesktopSubmenus() {
+    const nav = document.getElementById('mobileNav');
+    if (!nav) return;
+    nav.querySelectorAll('.menu-root > li.has-sub.open').forEach((li) => {
+        li.classList.remove('open');
+        const btn = li.querySelector(':scope > button');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+    });
+}
+
 function toggleMobileMenu() {
     const nav = document.getElementById('mobileNav');
     const hamburger = document.querySelector('.hamburger-btn');
     nav.classList.toggle('active');
     hamburger.classList.toggle('active');
+
+    // 閉じたときはサブメニューも閉じる
+    if (!nav.classList.contains('active')) {
+        closeAllMobileSubmenus();
+    }
+}
+
+function closeAllMobileSubmenus() {
+    const nav = document.getElementById('mobileNav');
+    if (!nav) return;
+
+    nav.querySelectorAll('.menu-root > li.has-sub.open').forEach((li) => {
+        li.classList.remove('open');
+        const btn = li.querySelector(':scope > button');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+    });
+}
+
+function closeMobileNav() {
+    const nav = document.getElementById('mobileNav');
+    const hamburger = document.querySelector('.hamburger-btn');
+    if (!nav || !hamburger) return;
+    nav.classList.remove('active');
+    hamburger.classList.remove('active');
+    closeAllMobileSubmenus();
 }
 
 function initMobileSubmenus() {
     const nav = document.getElementById('mobileNav');
     if (!nav) return;
 
-    const isMobile = window.matchMedia && window.matchMedia('(max-width: 767px)').matches;
-    if (!isMobile) return;
+    if (!isMobileNav()) return;
+
+    // 二重登録防止
+    if (nav.dataset.submenusInit === '1') return;
+    nav.dataset.submenusInit = '1';
+
+    // aria-controls 用に submenu にID付与
+    let submenuIndex = 0;
+    nav.querySelectorAll('.menu-root > li.has-sub').forEach((li) => {
+        const btn = li.querySelector(':scope > button');
+        const submenu = li.querySelector(':scope > .sub-menu');
+        if (!btn || !submenu) return;
+        if (!submenu.id) {
+            submenuIndex += 1;
+            submenu.id = `submenu-${submenuIndex}`;
+        }
+        btn.setAttribute('aria-haspopup', 'true');
+        btn.setAttribute('aria-controls', submenu.id);
+        btn.setAttribute('aria-expanded', li.classList.contains('open') ? 'true' : 'false');
+    });
 
     const items = nav.querySelectorAll('.menu-root > li.has-sub > button');
     items.forEach((btn) => {
@@ -170,7 +261,85 @@ function initMobileSubmenus() {
             e.preventDefault();
             const li = btn.closest('li');
             if (!li) return;
+
+            // アコーディオン（他は閉じる）
+            nav.querySelectorAll('.menu-root > li.has-sub.open').forEach((other) => {
+                if (other === li) return;
+                other.classList.remove('open');
+                const otherBtn = other.querySelector(':scope > button');
+                if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+            });
+
+            const willOpen = !li.classList.contains('open');
             li.classList.toggle('open');
+            btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        });
+    });
+
+    // サブメニューのリンクを押したらナビ全体を閉じる
+    nav.querySelectorAll('.sub-menu a').forEach((a) => {
+        a.addEventListener('click', () => {
+            closeMobileNav();
+        });
+    });
+}
+
+function initDesktopSubmenus() {
+    const nav = document.getElementById('mobileNav');
+    if (!nav) return;
+    if (isMobileNav()) return;
+
+    // 二重登録防止
+    if (nav.dataset.desktopSubmenusInit === '1') return;
+    nav.dataset.desktopSubmenusInit = '1';
+
+    // aria-controls 用にsubmenuにID付与（未設定のものだけ）
+    let submenuIndex = 0;
+    nav.querySelectorAll('.menu-root > li.has-sub').forEach((li) => {
+        const btn = li.querySelector(':scope > button');
+        const submenu = li.querySelector(':scope > .sub-menu');
+        if (!btn || !submenu) return;
+        if (!submenu.id) {
+            submenuIndex += 1;
+            submenu.id = `submenu-${submenuIndex}`;
+        }
+        btn.setAttribute('aria-haspopup', 'true');
+        btn.setAttribute('aria-controls', submenu.id);
+        btn.setAttribute('aria-expanded', li.classList.contains('open') ? 'true' : 'false');
+    });
+
+    nav.querySelectorAll('.menu-root > li.has-sub > button').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+            // 親ボタンはリンクではないので常に開閉
+            e.preventDefault();
+            const li = btn.closest('li');
+            if (!li) return;
+
+            const willOpen = !li.classList.contains('open');
+            // 他を閉じる
+            nav.querySelectorAll('.menu-root > li.has-sub.open').forEach((other) => {
+                if (other === li) return;
+                other.classList.remove('open');
+                const otherBtn = other.querySelector(':scope > button');
+                if (otherBtn) otherBtn.setAttribute('aria-expanded', 'false');
+            });
+
+            li.classList.toggle('open');
+            btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        });
+
+        // キーボード操作: Enter/Spaceで開閉
+        btn.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            btn.click();
+        });
+    });
+
+    // サブメニュー項目を押したら閉じる
+    nav.querySelectorAll('.sub-menu a').forEach((a) => {
+        a.addEventListener('click', () => {
+            closeAllDesktopSubmenus();
         });
     });
 }
@@ -187,6 +356,30 @@ document.addEventListener('click', function(event) {
     const settingsBtn = document.querySelector('.settings-btn');
     if (!settingsBtn.contains(event.target)) {
         menu.classList.remove('show');
+    }
+
+    // モバイルナビが開いているとき、外側タップで閉じる
+    if (isMobileNav()) {
+        const nav = document.getElementById('mobileNav');
+        const hamburger = document.querySelector('.hamburger-btn');
+        if (nav && hamburger && nav.classList.contains('active')) {
+            const clickedInsideNav = nav.contains(event.target);
+            const clickedHamburger = hamburger.contains(event.target);
+            if (!clickedInsideNav && !clickedHamburger) {
+                closeMobileNav();
+            }
+        }
+    }
+
+    // Desktop: 外側クリックでサブメニューを閉じる
+    if (!isMobileNav()) {
+        const nav = document.getElementById('mobileNav');
+        if (nav) {
+            const clickedInsideNav = nav.contains(event.target);
+            if (!clickedInsideNav) {
+                closeAllDesktopSubmenus();
+            }
+        }
     }
 });
 
@@ -232,10 +425,46 @@ document.addEventListener('keydown', function (event) {
     const modal = document.getElementById('logoutModal');
     if (modal && modal.classList.contains('show')) {
         closeLogoutModal();
+        return;
+    }
+
+    // モバイルナビを閉じる
+    if (isMobileNav()) {
+        const nav = document.getElementById('mobileNav');
+        if (nav && nav.classList.contains('active')) {
+            closeMobileNav();
+        }
+    }
+
+    // Desktop: ESCでサブメニューを閉じる
+    if (!isMobileNav()) {
+        closeAllDesktopSubmenus();
     }
 });
 
 document.addEventListener('DOMContentLoaded', function () {
     initMobileSubmenus();
+    initDesktopSubmenus();
+    // 画面サイズが変わったら初期化し直す
+    window.addEventListener('resize', () => {
+        const nav = document.getElementById('mobileNav');
+        if (!nav) return;
+        // フラグを落として再初期化（イベント多重付与のリスクはあるため、状態切替のときだけ）
+        // ここでは閾値を跨いだときだけ再初期化
+        const nowMobile = isMobileNav();
+        const prevMobile = nav.dataset.prevMobile === '1';
+        if (nowMobile === prevMobile) return;
+        nav.dataset.prevMobile = nowMobile ? '1' : '0';
+
+        // 状態リセット
+        closeMobileNav();
+        closeAllDesktopSubmenus();
+        nav.dataset.submenusInit = '0';
+        nav.dataset.desktopSubmenusInit = '0';
+
+        // 再初期化
+        initMobileSubmenus();
+        initDesktopSubmenus();
+    });
 });
 </script>

@@ -219,6 +219,36 @@
                                required>
                         <span class="field-error" id="position_error"></span>
                     </div>
+
+                    <div class="form-group">
+                        <label for="sport">
+                            <i class="fas fa-basketball-ball"></i> 種目
+                            <?php if (!empty($hasSportColumn)): ?>
+                                <span class="required">*</span>
+                            <?php endif; ?>
+                        </label>
+                        <select id="sport" name="sport" <?= !empty($hasSportColumn) ? 'required' : '' ?>>
+                            <option value="" <?= empty($sport) ? 'selected' : '' ?>>選択してください</option>
+                            <?php
+                            $options = [
+                                'swim' => '水泳',
+                                'basketball' => 'バスケ',
+                                'tennis' => 'テニス',
+                                'all' => '全て/複数',
+                            ];
+                            foreach ($options as $val => $label):
+                                $selected = ((string)$sport === (string)$val) ? 'selected' : '';
+                                echo '<option value="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '" ' . $selected . '>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</option>';
+                            endforeach;
+                            ?>
+                        </select>
+                        <?php if (empty($hasSportColumn)): ?>
+                            <small class="field-hint">※ 種目でメニューを出し分けるには、DBに sport 列の追加が必要です（db/add_user_sport.sql）。</small>
+                        <?php else: ?>
+                            <small class="field-hint">※ 選んだ種目だけがメニューに表示されます（管理者は全て表示）</small>
+                        <?php endif; ?>
+                        <span class="field-error" id="sport_error"></span>
+                    </div>
                 </div>
 
             </div>
@@ -378,6 +408,8 @@ document.getElementById('registrationForm').addEventListener('submit', function(
     
     // バリデーションOKならAjaxで送信
     const formData = new FormData(this);
+    // JSで FormData を作ると、押したsubmitボタン(name=reg)が含まれないため明示的に追加
+    formData.append('reg', '1');
     const submitButton = this.querySelector('button[type="submit"]');
     const originalButtonText = submitButton.innerHTML;
     

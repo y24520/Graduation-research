@@ -69,6 +69,8 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
                         $_SESSION['height'] = $row['height'];
                         $_SESSION['weight'] = $row['weight'];
                         $_SESSION['position'] = $row['position'];
+                        // ユーザーの種目（任意: DBに sport 列がある場合のみ）
+                        $_SESSION['sport'] = isset($row['sport']) ? $row['sport'] : null;
                         $_SESSION['is_admin'] = !empty($row['is_admin']) ? 1 : 0;
                         $_SESSION['is_super_admin'] = !empty($row['is_super_admin']) ? 1 : 0;
                         $_SESSION['show_loader'] = true;

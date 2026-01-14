@@ -26,6 +26,10 @@ $success_message = '';
 $user_id = $_SESSION['user_id'];
 $group_id = $_SESSION['group_id'];
 
+// 互換: login_tbl に sport 列がある場合のみ、種目を保存/出し分けに利用
+$hasSportColumn = false;
+$sportAllowed = ['all', 'swim', 'basketball', 'tennis'];
+
 $user_icon_info = sportdata_find_user_icon($group_id, $user_id);
 $user_icon_url = $user_icon_info['url'] ?? null;
 
@@ -43,6 +47,17 @@ if(!$user_data){
     exit();
 }
 
+$colSportRes = mysqli_query(
+    $link,
+    "SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'login_tbl' AND COLUMN_NAME = 'sport' LIMIT 1"
+);
+if ($colSportRes && mysqli_num_rows($colSportRes) > 0) {
+    $hasSportColumn = true;
+}
+if ($colSportRes) {
+    mysqli_free_result($colSportRes);
+}
+
 // Ajaxリクエストの判定
 $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
           strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
@@ -53,6 +68,9 @@ $dob = isset($_POST['dob']) ? trim((string)$_POST['dob']) : (string)$user_data['
 $height = isset($_POST['height']) ? trim((string)$_POST['height']) : (string)$user_data['height'];
 $weight = isset($_POST['weight']) ? trim((string)$_POST['weight']) : (string)$user_data['weight'];
 $position = isset($_POST['position']) ? trim((string)$_POST['position']) : (string)$user_data['position'];
+$sport = $hasSportColumn
+    ? (isset($_POST['sport']) ? trim((string)$_POST['sport']) : (string)($user_data['sport'] ?? ''))
+    : '';
 $current_password = $_POST['current_password'] ?? '';
 $new_password = $_POST['new_password'] ?? '';
 $new_password_confirm = $_POST['new_password_confirm'] ?? '';
@@ -186,6 +204,14 @@ if(isset($_POST['update'])){
     if($position === ''){
         $errors[] = 'ポジション/役職を入力してください';
     }
+
+    if ($hasSportColumn) {
+        if ($sport === '') {
+            $errors[] = '種目を選択してください';
+        } elseif (!in_array($sport, $sportAllowed, true)) {
+            $errors[] = '種目の値が不正です';
+        }
+    }
     
     // パスワード変更がある場合
     $password_update = false;
@@ -224,13 +250,25 @@ if(isset($_POST['update'])){
 
         if($password_update){
             $hash = password_hash($new_password, PASSWORD_DEFAULT);
-            $update_sql = "UPDATE login_tbl SET name = ?, dob = ?, height = ?, weight = ?, position = ?, password = ? WHERE user_id = ? AND group_id = ?";
-            $update_stmt = mysqli_prepare($link, $update_sql);
-            mysqli_stmt_bind_param($update_stmt, "ssddssss", $name, $dob, $height, $weight, $position, $hash, $user_id, $group_id);
+            if ($hasSportColumn) {
+                $update_sql = "UPDATE login_tbl SET name = ?, dob = ?, height = ?, weight = ?, position = ?, sport = ?, password = ? WHERE user_id = ? AND group_id = ?";
+                $update_stmt = mysqli_prepare($link, $update_sql);
+                mysqli_stmt_bind_param($update_stmt, "ssddsssss", $name, $dob, $height, $weight, $position, $sport, $hash, $user_id, $group_id);
+            } else {
+                $update_sql = "UPDATE login_tbl SET name = ?, dob = ?, height = ?, weight = ?, position = ?, password = ? WHERE user_id = ? AND group_id = ?";
+                $update_stmt = mysqli_prepare($link, $update_sql);
+                mysqli_stmt_bind_param($update_stmt, "ssddssss", $name, $dob, $height, $weight, $position, $hash, $user_id, $group_id);
+            }
         } else {
-            $update_sql = "UPDATE login_tbl SET name = ?, dob = ?, height = ?, weight = ?, position = ? WHERE user_id = ? AND group_id = ?";
-            $update_stmt = mysqli_prepare($link, $update_sql);
-            mysqli_stmt_bind_param($update_stmt, "ssddsss", $name, $dob, $height, $weight, $position, $user_id, $group_id);
+            if ($hasSportColumn) {
+                $update_sql = "UPDATE login_tbl SET name = ?, dob = ?, height = ?, weight = ?, position = ?, sport = ? WHERE user_id = ? AND group_id = ?";
+                $update_stmt = mysqli_prepare($link, $update_sql);
+                mysqli_stmt_bind_param($update_stmt, "ssddssss", $name, $dob, $height, $weight, $position, $sport, $user_id, $group_id);
+            } else {
+                $update_sql = "UPDATE login_tbl SET name = ?, dob = ?, height = ?, weight = ?, position = ? WHERE user_id = ? AND group_id = ?";
+                $update_stmt = mysqli_prepare($link, $update_sql);
+                mysqli_stmt_bind_param($update_stmt, "ssddsss", $name, $dob, $height, $weight, $position, $user_id, $group_id);
+            }
         }
         
         if(mysqli_stmt_execute($update_stmt)){
@@ -243,6 +281,9 @@ if(isset($_POST['update'])){
             $_SESSION['height'] = $height;
             $_SESSION['weight'] = $weight;
             $_SESSION['position'] = $position;
+            if ($hasSportColumn) {
+                $_SESSION['sport'] = $sport;
+            }
             
             // データを再取得
             $user_data['name'] = $name;
@@ -250,6 +291,9 @@ if(isset($_POST['update'])){
             $user_data['height'] = $height;
             $user_data['weight'] = $weight;
             $user_data['position'] = $position;
+            if ($hasSportColumn) {
+                $user_data['sport'] = $sport;
+            }
             
             if($isAjax){
                 header('Content-Type: application/json');

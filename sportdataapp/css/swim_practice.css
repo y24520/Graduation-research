@@ -1,0 +1,117 @@
+/* =====================
+   Swim Practice Page CSS
+   対象: swim_practice_create.php
+   既存: swim_input.css の変数/トーンに合わせる
+===================== */
+
+.practice-grid {
+  grid-template-columns: 1fr 520px;
+}
+
+@media (max-width: 1200px) {
+  .practice-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.practice-form {
+  display: block;
+}
+
+.practice-form-basic {
+  width: 100%;
+}
+
+.practice-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.practice-link {
+  text-decoration: none;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.practice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.practice-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.practice-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+  border-color: var(--primary);
+}
+
+.practice-card__top {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.practice-card__date {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.practice-card__title {
+  font-weight: 800;
+  color: var(--text);
+}
+
+.practice-card__menu {
+  margin: 0;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  white-space: pre-wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text);
+
+  display: -webkit-box;
+  -webkit-line-clamp: 7;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.practice-card__memo {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+
+.practice-card__memo-label {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.practice-card__memo-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.practice-summary .stat-card {
+  min-height: 110px;
+}

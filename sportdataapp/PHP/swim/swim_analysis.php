@@ -33,6 +33,52 @@ if (!$link) {
 }
 mysqli_set_charset($link, "utf8");
 
+function render_no_data_alert(string $redirect, string $message): void {
+    header('Content-Type: text/html; charset=UTF-8');
+    $redirectJs = json_encode($redirect, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    $messageJs = json_encode($message, JSON_UNESCAPED_UNICODE);
+
+    echo "<!doctype html><html lang=\"ja\"><head>";
+    echo "<meta charset=\"utf-8\">";
+    echo "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">";
+    echo "<title>水泳｜分析</title>";
+    echo "<link rel=\"stylesheet\" href=\"../../css/site.css\">";
+    echo "<link rel=\"stylesheet\" href=\"../../css/swim_input.css\">";
+    echo "<link rel=\"stylesheet\" href=\"../../css/swim_alert.css\">";
+    echo "</head><body>";
+
+    echo "<div class=\"swim-alert-shell\">";
+    echo "  <div class=\"swim-alert-backdrop\" id=\"swimAlertBackdrop\" hidden>";
+    echo "    <div class=\"swim-alert-modal\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"swimAlertTitle\" aria-describedby=\"swimAlertMessage\">";
+    echo "      <div class=\"swim-alert-header\"><h1 class=\"swim-alert-title\" id=\"swimAlertTitle\">お知らせ</h1></div>";
+    echo "      <div class=\"swim-alert-body\">";
+    echo "        <p class=\"swim-alert-message\" id=\"swimAlertMessage\"></p>";
+    echo "        <div class=\"swim-alert-actions\">";
+    echo "          <button type=\"button\" class=\"swim-alert-btn\" id=\"swimAlertGo\">記録入力へ</button>";
+    echo "        </div>";
+    echo "      </div>";
+    echo "    </div>";
+    echo "  </div>";
+    echo "</div>";
+
+    echo "<script>\n";
+    echo "(() => {\n";
+    echo "  const redirect = {$redirectJs};\n";
+    echo "  const message = {$messageJs};\n";
+    echo "  const backdrop = document.getElementById('swimAlertBackdrop');\n";
+    echo "  const msgEl = document.getElementById('swimAlertMessage');\n";
+    echo "  const goBtn = document.getElementById('swimAlertGo');\n";
+    echo "  msgEl.textContent = message;\n";
+    echo "  backdrop.hidden = false;\n";
+    echo "  goBtn.addEventListener('click', () => location.replace(redirect));\n";
+    echo "  goBtn.focus();\n";
+    echo "})();\n";
+    echo "</script>";
+
+    echo "</body></html>";
+    exit;
+}
+
 // GET パラメータでの選択受け取り (combo=pool|event|distance を想定)
 $selected_combo = $_GET['combo'] ?? null;
 $date_from = $_GET['date_from'] ?? null;
@@ -70,15 +116,7 @@ if ($combo_stmt) {
 
 // 記録が1件もない場合は、入力を促して記録画面へ誘導
 if (empty($combos)) {
-    header('Content-Type: text/html; charset=UTF-8');
-    $redirect = 'swim_input.php';
-    echo "<!doctype html><html lang=\"ja\"><head><meta charset=\"utf-8\"><title>水泳｜分析</title></head><body>";
-    echo "<script>\n";
-    echo "alert('水泳の記録データがありません。先に記録を入力してください。');\n";
-    echo "location.replace('" . htmlspecialchars($redirect, ENT_QUOTES, 'UTF-8') . "');\n";
-    echo "</script>";
-    echo "</body></html>";
-    exit;
+    render_no_data_alert('swim_input.php', '水泳の記録データがありません。先に記録を入力してください。');
 }
 
 /* =====================
@@ -131,15 +169,7 @@ $res = mysqli_stmt_get_result($stmt);
 $current = mysqli_fetch_assoc($res);
 
 if (!$current) {
-    header('Content-Type: text/html; charset=UTF-8');
-    $redirect = 'swim_input.php';
-    echo "<!doctype html><html lang=\"ja\"><head><meta charset=\"utf-8\"><title>水泳｜分析</title></head><body>";
-    echo "<script>\n";
-    echo "alert('水泳の記録データがありません。先に記録を入力してください。');\n";
-    echo "location.replace('" . htmlspecialchars($redirect, ENT_QUOTES, 'UTF-8') . "');\n";
-    echo "</script>";
-    echo "</body></html>";
-    exit;
+    render_no_data_alert('swim_input.php', '水泳の記録データがありません。先に記録を入力してください。');
 }
 
 $pool     = $current['pool'];

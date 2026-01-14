@@ -321,6 +321,11 @@
     transform: translateX(-50%) scaleX(1);
 }
 
+/* Submenu toggle indicator (caret)
+   - PC: 表示しない（クリックで開閉できるため、見た目をシンプルに）
+   - Mobile: 表示する（開閉状態が分かるため）
+*/
+
 /* =====================
    Sub menu
 ===================== */
@@ -328,53 +333,101 @@
 .has-sub{position: relative}
 
 .sub-menu{
-    display: none !important;
+    /* Desktop: JSで li.open を付与して表示 */
     position: absolute;
     top: 100%;
     left: 0;
     min-width: 220px;
     padding: 0.5rem;
     background: var(--nav-bg);
-    border-radius: 0;
+    border-radius: 8px;
     border: 1px solid #e5e7eb;
-    border-top: none;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--nav-shadow);
     z-index: 1300;
+
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px) scale(0.98);
+    transform-origin: top left;
+    pointer-events: none;
+    transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 160ms;
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* open時（Desktop） */
+.menu-root li.open > .sub-menu{
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(6px) scale(1);
+    pointer-events: auto;
+    transition: opacity 160ms ease, transform 160ms ease;
 }
 
 .sub-menu li a{
     display: block;
-    padding: 0.75rem 1rem;
+    padding: 0.7rem 0.9rem;
     border-radius: 8px;
     color: var(--nav-text);
     text-decoration: none;
-    font-weight: 500;
-    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    position: relative;
+    transition: transform 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+
+/* left accent bar (hover/focus) */
+.sub-menu li a::before{
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    width: 3px;
+    height: 60%;
+    border-radius: 999px;
+    background: var(--nav-accent);
+    transform: translateY(-50%) scaleY(0);
+    transform-origin: center;
+    opacity: 0;
+    transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.sub-menu li + li{
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.sub-menu li{
+    padding-top: 2px;
+}
+
+.sub-menu li:first-child{
+    padding-top: 0;
 }
 
 .sub-menu li a:hover{
-    background: linear-gradient(135deg, rgba(49, 130, 206, 0.1) 0%, rgba(49, 130, 206, 0.05) 100%);
+    background: rgba(49, 130, 206, 0.08);
     color: var(--nav-accent);
-    transform: translateX(4px);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
 }
 
-/* hover / focus states (mouse + keyboard accessibility) */
-.has-sub:hover .sub-menu,
-.has-sub > button:hover + .sub-menu,
-.has-sub > button:focus + .sub-menu,
-.has-sub:focus-within .sub-menu{
-    display: block !important;
+.sub-menu li a:hover::before{
+    opacity: 1;
+    transform: translateY(-50%) scaleY(1);
+}
+
+.sub-menu li a:focus-visible{
+    outline: 2px solid rgba(49, 130, 206, 0.25);
+    outline-offset: 2px;
+    background: rgba(49, 130, 206, 0.08);
+}
+
+.sub-menu li a:focus-visible::before{
+    opacity: 1;
+    transform: translateY(-50%) scaleY(1);
 }
 
 /* =====================
@@ -461,6 +514,24 @@
         border-radius: 0;
     }
 
+    /* Mobile only caret */
+    .menu-root > li.has-sub > button{
+        padding-right: 2.75rem;
+    }
+
+    .menu-root > li.has-sub > button::before{
+        content: '';
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid var(--nav-muted);
+        border-bottom: 2px solid var(--nav-muted);
+        transform: translateY(-60%) rotate(45deg);
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
     .sub-menu {
         position: static !important;
         box-shadow: none !important;
@@ -468,6 +539,16 @@
         padding-left: 2rem;
         margin-top: 0;
         display: none !important;
+
+        border-left: 3px solid rgba(49, 130, 206, 0.25);
+        border-radius: 0;
+        gap: 0;
+
+        /* Mobileはdisplayで出し入れするので視覚状態は固定 */
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+        pointer-events: auto !important;
     }
 
     /* 親メニュークリックで開閉（JSが li.open を付与） */
@@ -475,8 +556,14 @@
         display: block !important;
     }
 
+    /* open時は矢印を上向きに */
+    .menu-root li.open.has-sub > button::before{
+        transform: translateY(-40%) rotate(-135deg);
+        border-color: var(--nav-accent);
+    }
+
     .sub-menu li a {
-        padding: 0.75rem 1rem;
+        padding: 0.8rem 1rem;
     }
 
     .app-title {

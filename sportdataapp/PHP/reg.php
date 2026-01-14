@@ -15,6 +15,17 @@ mysqli_select_db($link, 'sportdata_db');
 $errors = [];
 $success = false;
 
+// 互換: sport 列があるDBのみ、種目を保存/出し分けに利用
+$hasSportColumn = false;
+$sport = '';
+$sportAllowed = ['all', 'swim', 'basketball', 'tennis'];
+$sportLabels = [
+    'all' => '全て/複数',
+    'swim' => '水泳',
+    'basketball' => 'バスケ',
+    'tennis' => 'テニス',
+];
+
 // Ajaxリクエストの判定
 $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
           strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
@@ -30,6 +41,20 @@ $height = $_POST['height'] ?? '';
 $weight = $_POST['weight'] ?? '';
 $position = $_POST['position'] ?? '';
 
+// 種目（DBに列がある場合のみ必須化）
+$colSportRes = mysqli_query(
+    $link,
+    "SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'login_tbl' AND COLUMN_NAME = 'sport' LIMIT 1"
+);
+if ($colSportRes && mysqli_num_rows($colSportRes) > 0) {
+    $hasSportColumn = true;
+}
+if ($colSportRes) {
+    mysqli_free_result($colSportRes);
+}
+
+$sport = isset($_POST['sport']) ? trim((string)$_POST['sport']) : '';
+
 // スーパー管理者への「管理者権限希望（申請）」
 $wants_admin = !empty($_POST['wants_admin']) ? 1 : 0;
 
@@ -38,6 +63,7 @@ $wants_admin = !empty($_POST['wants_admin']) ? 1 : 0;
 $canSetAdmin = !empty($_SESSION['is_admin']) || !empty($_SESSION['is_super_admin']);
 $is_admin = ($canSetAdmin && !empty($_POST['is_admin'])) ? 1 : 0;
 
+try {
 if(isset($_POST['reg'])){
     // バリデーション
     if(empty($group_id)){
@@ -52,13 +78,20 @@ if(isset($_POST['reg'])){
         // ユーザーID重複チェック
         $check_sql = "SELECT user_id FROM login_tbl WHERE user_id = ?";
         $check_stmt = mysqli_prepare($link, $check_sql);
-        mysqli_stmt_bind_param($check_stmt, "s", $user_id);
-        mysqli_stmt_execute($check_stmt);
-        mysqli_stmt_store_result($check_stmt);
-        if(mysqli_stmt_num_rows($check_stmt) > 0){
-            $errors[] = 'このユーザーIDは既に使用されています';
+        if (!$check_stmt) {
+            $errors[] = 'データベースエラーが発生しました（ユーザーID確認）';
+        } else {
+            mysqli_stmt_bind_param($check_stmt, "s", $user_id);
+            if (!mysqli_stmt_execute($check_stmt)) {
+                $errors[] = 'データベースエラーが発生しました（ユーザーID確認）';
+            } else {
+                mysqli_stmt_store_result($check_stmt);
+                if(mysqli_stmt_num_rows($check_stmt) > 0){
+                    $errors[] = 'このユーザーIDは既に使用されています';
+                }
+            }
+            mysqli_stmt_close($check_stmt);
         }
-        mysqli_stmt_close($check_stmt);
     }
     
     if(empty($password)){
@@ -96,6 +129,14 @@ if(isset($_POST['reg'])){
     if(empty($position)){
         $errors[] = 'ポジション/役職を入力してください';
     }
+
+    if ($hasSportColumn) {
+        if ($sport === '') {
+            $errors[] = '種目を選択してください';
+        } elseif (!in_array($sport, $sportAllowed, true)) {
+            $errors[] = '種目の値が不正です';
+        }
+    }
     
     // エラーがなければ登録処理
     if(empty($errors)){
@@ -114,8 +155,12 @@ if(isset($_POST['reg'])){
             mysqli_free_result($colRes);
         }
 
-        if ($hasIsAdminColumn) {
+        if ($hasIsAdminColumn && $hasSportColumn) {
+            $sql = "INSERT INTO login_tbl (group_id, user_id, password, name, dob, height, weight, position, sport, is_admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        } elseif ($hasIsAdminColumn) {
             $sql = "INSERT INTO login_tbl (group_id, user_id, password, name, dob, height, weight, position, is_admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        } elseif ($hasSportColumn) {
+            $sql = "INSERT INTO login_tbl (group_id, user_id, password, name, dob, height, weight, position, sport) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         } else {
             $sql = "INSERT INTO login_tbl (group_id, user_id, password, name, dob, height, weight, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         }
@@ -124,8 +169,12 @@ if(isset($_POST['reg'])){
         if(!$stmt){
             $errors[] = "データベースエラー: " . mysqli_error($link);
         } else {
-            if ($hasIsAdminColumn) {
+            if ($hasIsAdminColumn && $hasSportColumn) {
+                mysqli_stmt_bind_param($stmt, "sssssddssi", $group_id, $user_id, $hash, $name, $dob, $height, $weight, $position, $sport, $is_admin);
+            } elseif ($hasIsAdminColumn) {
                 mysqli_stmt_bind_param($stmt, "sssssddsi", $group_id, $user_id, $hash, $name, $dob, $height, $weight, $position, $is_admin);
+            } elseif ($hasSportColumn) {
+                mysqli_stmt_bind_param($stmt, "sssssddss", $group_id, $user_id, $hash, $name, $dob, $height, $weight, $position, $sport);
             } else {
                 mysqli_stmt_bind_param($stmt, "sssssdds", $group_id, $user_id, $hash, $name, $dob, $height, $weight, $position);
             }
@@ -200,6 +249,21 @@ if(isset($_POST['reg'])){
         ]);
         exit();
     }
+}
+
+} catch (Throwable $e) {
+    // Ajax送信時にPHPの警告/例外でJSONが壊れるのを避ける
+    if ($isAjax) {
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'errors' => ['サーバーエラーが発生しました。もう一度お試しください。'],
+        ]);
+        exit();
+    }
+    // 非Ajaxは従来通りテンプレで表示（致命的に止まるよりは簡易メッセージ）
+    $errors[] = 'サーバーエラーが発生しました。';
 }
 
 
