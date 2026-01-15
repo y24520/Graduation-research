@@ -22,7 +22,7 @@
     <?php if($success): ?>
     <div class="success-box">
         <i class="fas fa-check-circle"></i>
-        <span>登録情報を更新しました</span>
+        <span><?= htmlspecialchars($success_message ?: '登録情報を更新しました', ENT_QUOTES, 'UTF-8') ?></span>
     </div>
     <?php endif; ?>
 
@@ -40,11 +40,32 @@
     </div>
     <?php endif; ?>
 
-    <form action="" method="post" id="profileEditForm" class="profile-form">
+    <form action="" method="post" id="profileEditForm" class="profile-form" enctype="multipart/form-data">
         <div class="form-sections">
             <!-- 基本情報セクション -->
             <div class="form-section">
                 <h3><i class="fas fa-id-card"></i> 基本情報</h3>
+
+                <div class="avatar-section">
+                    <label class="avatar-label"><i class="fas fa-image"></i> ユーザーアイコン</label>
+                    <div class="avatar-row">
+                        <div class="avatar-preview" aria-label="現在のアイコン">
+                            <?php if (!empty($user_icon_url)): ?>
+                                <img id="userIconPreview" src="<?= htmlspecialchars($user_icon_url, ENT_QUOTES, 'UTF-8') ?>" alt="ユーザーアイコン">
+                            <?php endif; ?>
+                            <span id="userIconFallback" class="avatar-fallback" style="<?= !empty($user_icon_url) ? 'display:none' : '' ?>"><?= htmlspecialchars(mb_substr($user_data['name'] ?? '?', 0, 1, 'UTF-8'), ENT_QUOTES, 'UTF-8') ?></span>
+                        </div>
+                        <div class="avatar-controls">
+                            <input type="file" id="user_icon" name="user_icon" accept="image/*" class="avatar-input">
+                            <small class="field-hint">画像を選択するとプレビューされます（PNG/JPG/GIF/WebP、最大2MB）</small>
+                            <div class="avatar-actions">
+                                <button type="submit" name="update_icon" class="btn-submit btn-submit--secondary">
+                                    <i class="fas fa-image"></i> アイコンのみ保存
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="info-display">
                     <div class="info-item">
@@ -129,6 +150,29 @@
                            required>
                     <span class="field-error" id="position_error"></span>
                 </div>
+
+                <div class="form-group">
+                    <label for="sport">
+                        <i class="fas fa-basketball-ball"></i> 種目
+                        <?php if (!empty($hasSportColumn)): ?>
+                            <span class="required">*</span>
+                        <?php endif; ?>
+                    </label>
+                    <?php if (!empty($hasSportColumn)): ?>
+                        <?php $currentSport = (string)($user_data['sport'] ?? ''); ?>
+                        <select id="sport" name="sport" required>
+                            <option value="" <?= $currentSport === '' ? 'selected' : '' ?>>選択してください</option>
+                            <option value="swim" <?= $currentSport === 'swim' ? 'selected' : '' ?>>水泳</option>
+                            <option value="basketball" <?= $currentSport === 'basketball' ? 'selected' : '' ?>>バスケ</option>
+                            <option value="tennis" <?= $currentSport === 'tennis' ? 'selected' : '' ?>>テニス</option>
+                            <option value="all" <?= $currentSport === 'all' ? 'selected' : '' ?>>全て/複数</option>
+                        </select>
+                        <small class="field-hint">※ 選んだ種目だけがメニューに表示されます（管理者は全て表示）</small>
+                    <?php else: ?>
+                        <p class="section-note">※ 種目でメニューを出し分けるには、DBに sport 列の追加が必要です（db/add_user_sport.sql）。</p>
+                    <?php endif; ?>
+                    <span class="field-error" id="sport_error"></span>
+                </div>
             </div>
 
             <!-- パスワード変更セクション -->
@@ -204,8 +248,56 @@
     </form>
 </div>
 
-<script src="../js/meny.js"></script>
 <script>
+// アイコンプレビュー
+const iconInput = document.getElementById('user_icon');
+const iconPreview = document.getElementById('userIconPreview');
+const iconFallback = document.getElementById('userIconFallback');
+
+if (iconPreview) {
+    iconPreview.addEventListener('load', function () {
+        if (iconFallback) iconFallback.style.display = 'none';
+    });
+    iconPreview.addEventListener('error', function () {
+        if (iconFallback) iconFallback.style.display = 'flex';
+        this.remove();
+    });
+}
+
+if (iconInput) {
+    iconInput.addEventListener('change', function () {
+        const file = this.files && this.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            alert('画像ファイルを選択してください');
+            this.value = '';
+            return;
+        }
+
+        const url = URL.createObjectURL(file);
+        let img = document.getElementById('userIconPreview');
+        if (!img) {
+            img = document.createElement('img');
+            img.id = 'userIconPreview';
+            img.alt = 'ユーザーアイコン';
+            const previewBox = document.querySelector('.avatar-preview');
+            if (previewBox) {
+                previewBox.prepend(img);
+            }
+            img.addEventListener('load', function () {
+                if (iconFallback) iconFallback.style.display = 'none';
+                URL.revokeObjectURL(url);
+            });
+        } else {
+            img.onload = function () {
+                if (iconFallback) iconFallback.style.display = 'none';
+                URL.revokeObjectURL(url);
+            };
+        }
+        img.src = url;
+    });
+}
+
 // パスワード表示切替
 function togglePassword(fieldId) {
     const field = document.getElementById(fieldId);
@@ -278,8 +370,15 @@ document.getElementById('new_password_confirm').addEventListener('input', functi
 document.getElementById('profileEditForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
+    const submitter = e.submitter || this.querySelector('button[type="submit"]');
     const formData = new FormData(this);
-    const submitButton = this.querySelector('button[type="submit"]');
+
+    // どの送信ボタンが押されたかをFormDataに反映（FormData(form)だけだと入らないブラウザがある）
+    if (submitter && submitter.name) {
+        formData.set(submitter.name, submitter.value || '1');
+    }
+
+    const submitButton = submitter || this.querySelector('button[type="submit"]');
     const originalButtonText = submitButton.innerHTML;
     
     submitButton.disabled = true;
@@ -292,7 +391,21 @@ document.getElementById('profileEditForm').addEventListener('submit', function(e
             'X-Requested-With': 'XMLHttpRequest'
         }
     })
-    .then(response => response.json())
+    .then(async (response) => {
+        const contentType = response.headers.get('content-type') || '';
+        const text = await response.text();
+
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status + ': ' + text.slice(0, 200));
+        }
+
+        if (contentType.includes('application/json')) {
+            return JSON.parse(text);
+        }
+
+        // JSON以外が返ってきた場合（例: PHPがHTMLを返した）
+        throw new Error('JSON以外の応答を受信しました: ' + text.slice(0, 200));
+    })
     .then(data => {
         if (data.success) {
             showSuccessMessage(data.message);
@@ -309,7 +422,7 @@ document.getElementById('profileEditForm').addEventListener('submit', function(e
     })
     .catch(error => {
         console.error('Error:', error);
-        showErrors(['通信エラーが発生しました']);
+        showErrors(['通信エラーが発生しました', String(error && error.message ? error.message : error)]);
         submitButton.disabled = false;
         submitButton.innerHTML = originalButtonText;
     });
@@ -367,7 +480,7 @@ document.querySelectorAll('input').forEach(input => {
     });
 });
 </script>
-<script src="../js/meny.js"></script>
+
 
 </body>
 </html>

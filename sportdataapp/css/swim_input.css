@@ -115,7 +115,7 @@ h2, h3, h4 {
 ========================================== */
 .content-grid {
     display: grid;
-    grid-template-columns: 1fr 400px;
+  grid-template-columns: 1fr minmax(320px, 400px);
     gap: 2rem;
     max-width: 1600px;
     margin: 0 auto;
@@ -360,9 +360,16 @@ form {
 /* 3列グリッドレイアウト */
 .form-items {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: minmax(320px, 1fr) minmax(260px, 1.35fr) minmax(260px, 1.35fr);
   gap: 1.25rem;
   align-items: start;
+}
+
+/* Prevent grid items from forcing other columns to collapse */
+.form-basic,
+.form-stroke,
+.form-lap {
+  min-width: 0;
 }
 
 @media (max-width: 960px) {
@@ -498,7 +505,7 @@ form {
 /* 体調選択（顔アイコン） */
 .condition-faces {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.5rem;
   padding: 0.5rem 0;
 }
@@ -509,18 +516,18 @@ form {
   align-items: center;
   gap: 0.25rem;
   padding: 0.75rem 0.5rem;
-  border: 2px solid var(--border);
+  border: none;
   border-radius: 12px;
   background: #ffffff;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  min-width: 0;
 }
 
 .face-option:hover {
   transform: translateY(-2px);
   background: #ffe4e9;
-  border-color: #ffb3c1;
   box-shadow: 0 4px 12px rgba(255, 182, 193, 0.3);
 }
 
@@ -563,7 +570,6 @@ form {
 
 .face-option:has(input[type="radio"]:checked) {
   background: #ff69b4;
-  border-color: #ff1493;
   box-shadow: 0 6px 16px rgba(255, 20, 147, 0.4);
 }
 
@@ -1048,7 +1054,6 @@ table tbody tr:last-child td {
 
   /* 体調選択の顔アイコン */
   .condition-faces {
-    grid-template-columns: repeat(5, 1fr);
     gap: 0.35rem;
   }
 

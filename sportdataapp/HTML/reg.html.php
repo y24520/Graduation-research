@@ -53,6 +53,30 @@
                         <span class="field-error" id="group_id_error"></span>
                     </div>
 
+                    <?php if (!empty($canSetAdmin)): ?>
+                    <div class="form-group">
+                        <label class="checkbox-label" for="is_admin">
+                            <i class="fas fa-user-shield"></i> 管理者として登録
+                        </label>
+                        <label class="form-checkbox" for="is_admin">
+                            <input type="checkbox" id="is_admin" name="is_admin" value="1" <?= !empty($_POST['is_admin']) ? 'checked' : '' ?>>
+                            <span>コーチ/先生など（同じgroupのデータ閲覧）</span>
+                        </label>
+                        <small class="field-hint">※ 管理者のみ設定できます（管理者で登録する場合、身体情報は入力不要）</small>
+                    </div>
+                    <?php endif; ?>
+
+                    <div class="form-group">
+                        <label class="checkbox-label" for="wants_admin">
+                            <i class="fas fa-user-shield"></i> 管理者権限を希望（申請）
+                        </label>
+                        <label class="form-checkbox" for="wants_admin">
+                            <input type="checkbox" id="wants_admin" name="wants_admin" value="1" <?= !empty($_POST['wants_admin']) ? 'checked' : '' ?>>
+                            <span>チェックするとスーパー管理者に申請されます</span>
+                        </label>
+                        <small class="field-hint">※ 申請中は身体情報の入力は不要です</small>
+                    </div>
+
                     <div class="form-group">
                         <label for="user_id">
                             <i class="fas fa-user"></i> ユーザーID
@@ -131,6 +155,7 @@
                         <span class="field-error" id="name_error"></span>
                     </div>
 
+                    <div id="bodyInfoFields">
                     <div class="form-group">
                         <label for="dob">
                             <i class="fas fa-calendar-alt"></i> 生年月日
@@ -179,6 +204,7 @@
                             <span class="field-error" id="weight_error"></span>
                         </div>
                     </div>
+                    </div>
 
                     <div class="form-group">
                         <label for="position">
@@ -192,6 +218,36 @@
                                placeholder="例: フォワード / 選手"
                                required>
                         <span class="field-error" id="position_error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sport">
+                            <i class="fas fa-basketball-ball"></i> 種目
+                            <?php if (!empty($hasSportColumn)): ?>
+                                <span class="required">*</span>
+                            <?php endif; ?>
+                        </label>
+                        <select id="sport" name="sport" <?= !empty($hasSportColumn) ? 'required' : '' ?>>
+                            <option value="" <?= empty($sport) ? 'selected' : '' ?>>選択してください</option>
+                            <?php
+                            $options = [
+                                'swim' => '水泳',
+                                'basketball' => 'バスケ',
+                                'tennis' => 'テニス',
+                                'all' => '全て/複数',
+                            ];
+                            foreach ($options as $val => $label):
+                                $selected = ((string)$sport === (string)$val) ? 'selected' : '';
+                                echo '<option value="' . htmlspecialchars($val, ENT_QUOTES, 'UTF-8') . '" ' . $selected . '>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</option>';
+                            endforeach;
+                            ?>
+                        </select>
+                        <?php if (empty($hasSportColumn)): ?>
+                            <small class="field-hint">※ 種目でメニューを出し分けるには、DBに sport 列の追加が必要です（db/add_user_sport.sql）。</small>
+                        <?php else: ?>
+                            <small class="field-hint">※ 選んだ種目だけがメニューに表示されます（管理者は全て表示）</small>
+                        <?php endif; ?>
+                        <span class="field-error" id="sport_error"></span>
                     </div>
                 </div>
 
@@ -279,6 +335,28 @@ document.getElementById('password_confirm').addEventListener('input', function()
     }
 });
 
+// 管理者として登録する場合は身体情報を非表示
+(function syncBodyInfoVisibility() {
+    const adminCheckbox = document.getElementById('is_admin');
+    const wantsAdminCheckbox = document.getElementById('wants_admin');
+    const bodyInfoFields = document.getElementById('bodyInfoFields');
+    if (!bodyInfoFields) return;
+
+    const apply = () => {
+        const isAdminRegister = adminCheckbox ? adminCheckbox.checked : false;
+        const wantsAdminRegister = wantsAdminCheckbox ? wantsAdminCheckbox.checked : false;
+        bodyInfoFields.style.display = (isAdminRegister || wantsAdminRegister) ? 'none' : '';
+    };
+
+    if (adminCheckbox) {
+        adminCheckbox.addEventListener('change', apply);
+    }
+    if (wantsAdminCheckbox) {
+        wantsAdminCheckbox.addEventListener('change', apply);
+    }
+    apply();
+})();
+
 // フォーム送信前のバリデーション & Ajax送信
 document.getElementById('registrationForm').addEventListener('submit', function(e) {
     e.preventDefault(); // デフォルトの送信を防ぐ
@@ -290,7 +368,15 @@ document.getElementById('registrationForm').addEventListener('submit', function(
     document.querySelectorAll('input').forEach(el => el.classList.remove('error'));
     
     // 必須フィールドチェック
-    const requiredFields = ['group_id', 'user_id', 'password', 'password_confirm', 'name', 'dob', 'height', 'weight', 'position'];
+    // 管理者として登録する場合は身体情報(dob/height/weight)は不要
+    const adminCheckbox = document.getElementById('is_admin');
+    const wantsAdminCheckbox = document.getElementById('wants_admin');
+    const isAdminRegister = adminCheckbox ? adminCheckbox.checked : false;
+    const wantsAdminRegister = wantsAdminCheckbox ? wantsAdminCheckbox.checked : false;
+    const requiredFields = ['group_id', 'user_id', 'password', 'password_confirm', 'name', 'position'];
+    if (!(isAdminRegister || wantsAdminRegister)) {
+        requiredFields.push('dob', 'height', 'weight');
+    }
     
     requiredFields.forEach(fieldName => {
         const field = document.getElementById(fieldName);
@@ -322,6 +408,8 @@ document.getElementById('registrationForm').addEventListener('submit', function(
     
     // バリデーションOKならAjaxで送信
     const formData = new FormData(this);
+    // JSで FormData を作ると、押したsubmitボタン(name=reg)が含まれないため明示的に追加
+    formData.append('reg', '1');
     const submitButton = this.querySelector('button[type="submit"]');
     const originalButtonText = submitButton.innerHTML;
     
