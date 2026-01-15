@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>グループ設定 - Sports Data</title>
+    <title>グループ設定 - Sports Analytics App</title>
     <link rel="stylesheet" href="../css/site.css">
     <link rel="stylesheet" href="../css/group_settings.css">
     

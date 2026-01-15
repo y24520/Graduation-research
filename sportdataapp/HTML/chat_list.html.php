@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>チャット - Sports Data</title>
+    <title>チャット - Sports Analytics App</title>
     <link rel="stylesheet" href="../css/site.css">
     <link rel="stylesheet" href="../css/chat_unified.css">
 </head>

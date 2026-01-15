@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>新規登録 - スポーツデータ可視化分析アプリ</title>
+    <title>新規登録 - Sports Analytics App</title>
     <link rel="stylesheet" href="../css/reg.css">
     <link rel="stylesheet" href="../css/site.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,7 +14,7 @@
 <div class="registration-container">
     <div class="registration-header">
         <h1><i class="fas fa-user-plus"></i> 新規登録</h1>
-        <p class="subtitle">スポーツデータ可視化分析アプリへようこそ</p>
+        <p class="subtitle">Sports Analytics Appへようこそ</p>
     </div>
 
     <?php if(!empty($errors)): ?>

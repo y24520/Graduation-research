@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ログイン - スポーツデータ可視化分析アプリ</title>
+    <title>ログイン - Sports Analytics App</title>
     <link rel="stylesheet" href="../css/login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -14,9 +14,9 @@
             <div class="login-header">
                 <div class="logo">
                     <i class="fas fa-running"></i>
-                    <h1>SportData</h1>
+                    <h1>Sports Analytics App</h1>
                 </div>
-                <p class="subtitle">スポーツデータ分析可視化アプリ</p>
+                <p class="subtitle">Sports Analytics App</p>
             </div>
 
             <!-- 成功メッセージ -->
@@ -130,7 +130,7 @@
                             <i class="fas fa-user-plus"></i>
                         </div>
                         <h2>はじめての方へ</h2>
-                        <p>スポーツデータ可視化分析アプリをご利用いただくには、新規登録が必要です。</p>
+                        <p>Sports Analytics Appをご利用いただくには、新規登録が必要です。</p>
                         
                         <div class="features">
                             <div class="feature-item">
