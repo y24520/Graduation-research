@@ -123,7 +123,7 @@ require_once __DIR__ . '/../header.php';
 
             <div class="tool-group">
                 <h3>Line</h3>
-                <button class="btn-yellow" onclick="addArrow('#f1c40f', false)">移動</button>
+                <button class="btn-yellow" onclick="addArrow('#0f31f1', false)">移動</button>
                 <button class="btn-dashed" onclick="addArrow('#fff', true)">パス/シュート</button>
             </div>
 
