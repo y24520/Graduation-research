@@ -1,9 +1,5 @@
 <?php
 session_start();
-
-// 共通ナビ用：アクセスURLに応じてPHPルートへの相対パスを切り替える
-// - /PHP/T_MNO/* で開いている場合: ..
-// - /T_MNO/* (互換ラッパー経由) の場合: ../PHP
 $uri = $_SERVER['REQUEST_URI'] ?? '';
 $NAV_BASE = (stripos($uri, '/PHP/T_MNO/') !== false) ? '..' : '../PHP';
 
