@@ -172,8 +172,6 @@ $gameData = json_encode($_SESSION['game'], JSON_UNESCAPED_UNICODE);
         render();
     }
 
-    // --- ここからが修正・追加された重要ロジック ---
-
     // サーバー保存処理
     async function saveState() {
     await fetch('save_game.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(game.state) });
